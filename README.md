@@ -170,7 +170,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 茵蒂克丝 index
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/index.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/index.jpg)
 
 动漫《魔法禁书目录》中女主角。有着银色的长发、绿色的眼瞳、雪白的肌肤，年龄约十四五岁，却有着可爱的幼儿体型。
 
@@ -183,7 +183,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 尤莉 youri
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/youri.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/youri.jpg)
 
 尤莉是由 つくみず 创作的漫画《少女终末旅行》及其衍生作品中的登场角色。性格极度乐观，非常喜欢吃东西。
 
@@ -194,7 +194,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 雪未来 snow_miku
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/snow_miku.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/snow_miku.jpg)
 
 雪未来是 Crypton 旗下虚拟歌手初音未来的二次创作系列造型，民间有时称其为 “雪初音” 或 “雪 MIKU”。自 2010 年被确立为日本北海道札幌冰雪节的应援角色。自 2012 年起，每年会以网络征集投票的形式决定新的雪未来人物形象。
 
@@ -210,7 +210,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 凉风青叶 aoba
 
-##### ![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/aoba.jpg)
+##### ![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/aoba.jpg)
 
 来自 New Game! 的凉风青叶和你见面啦！
 
@@ -223,7 +223,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 工作中的血小板 platelet
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/platelet.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/platelet.jpg)
 
 
 
@@ -234,7 +234,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 干物妹小埋 umaru
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/umaru.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/umaru.jpg)
 
 模型作者：未知
 模型出处：未知
@@ -246,7 +246,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 和泉纱雾 sagiri
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/sagiri.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/sagiri.jpg)
 
 模型作者：oukaitou
 模型出处：Live2DViewer 创意工坊
@@ -258,7 +258,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 康娜 kanna
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/kanna.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/kanna.jpg)
 
 模型作者：oukaitou
 模型出处：Live2DViewer 创意工坊
@@ -267,7 +267,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 时崎狂三 kurumi
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/kurumi.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/kurumi.jpg)
 
 模型作者：未知
 模型出处：约会大作战手游官网
@@ -276,7 +276,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 雷姆 rem
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/rem.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/rem.jpg)
 
 提取自 [广树的项目](https://github.com/eeg1412/Live2dRem)。
 
@@ -292,7 +292,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 香风智乃 chino
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/chino.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/chino.jpg)
 
 香风智乃，漫画《请问您今天要来点兔子吗？》中及其衍生作品中女主角之一。咖啡店 Rabbit House 老板的孙女，13 岁的初中生。身形娇小却意外地能干，店内杂务也几乎由她一手包办，个性冷静又沉默寡言，但其实是在人际交往上有点笨拙。
 
@@ -303,7 +303,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 鹿目圆 madoka
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/madoka.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/madoka.jpg)
 
 鹿目圆是原创动画《魔法少女小圆》及其衍生作品中主角。就读于市立见泷原中学二年级的一位普通初中生。个头小巧可爱，性格温柔且为朋友着想。因为本身的潜质，而成为魔法少女。后成为神，消失在世界上。
 
@@ -319,7 +319,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 22 娘全身版
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/22.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/22.jpg)
 
 22 娘是娱乐向弹幕视频站点 Bilibili 的吉祥物。阳光元气娘，火拼有精神。对人热情、热心，但有些冒失。
 
@@ -335,7 +335,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ##### 涅普迪努 neptune
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/neptune.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/neptune.jpg)
 
 涅普迪努，又称 “涅普顿”。是《超次元游戏：海王星》等海王星系列游戏中紫色大陆 Planeptune 的守护女神。性格乐天、天真浪漫，很擅长调节气氛。有时会从女神的工作中翘班，经常懒懒的，但因为天生的性格原因，仍然受到周围人的欢迎。
 
@@ -352,13 +352,13 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/yichui_2.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/yichui_2.jpg)
 
 ------
 
  ##### dujiaoshou_6
 
-![](https://github.com/jianchengwang/live2d_models/tree/main/_model_images/dujiaoshou_6.jpg)
+![](https://github.com/jianchengwang/live2d_models/raw/main/_model_images/dujiaoshou_6.jpg)
 
 ------
 
