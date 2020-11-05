@@ -6,66 +6,28 @@
     <title>live2d-v3-demo</title>
 </head>
 <body>
-    <style type="text/css">
-        .pio-container {
-            bottom: 0;
-            z-index: 52;
-            color: #666;
-            position: fixed;
-            user-select: none;
-        }
-
-        .pio-container .pio-action {
-            top: 3em;
-            opacity: 0;
-            position: absolute;
-            transition: opacity .3s;
-        }
-
-        .pio-action span {
-            color: #fff;
-            width: 1.5em;
-            height: 1.5em;
-            display: block;
-            cursor: pointer;
-            text-align: center;
-            border-radius: 66%;
-            margin-bottom: .5em;
-            border: 1px solid #666;
-            background: #fff center/70% no-repeat;
-        }
-
-        .pio-container .pio-dialog {
-            top: -2em;
-            opacity: 0;
-            z-index: -1;
-            font-size: .8em;
-            min-width: 12em;
-            background: #fff;
-            padding: .75em 1em;
-            border-radius: 1em;
-            visibility: hidden;
-            position: absolute;
-            word-break: break-all;
-            border: 1px solid #eee;
-            transition: opacity .3s,visibility .3s;
-        }
-    </style>
     <!-- Canvas -->
     u can find more model from https://github.com/Yukariin/AzurLaneL2DViewer <br/>
     <input type="text" value="bisimai_2" id="modelName" /><button onclick="loadModel();">loadModel</button><br/>
 
-    <div class="pio-container left loaded" style="left: -2px; top: 770px; bottom: auto;">
-        <div class="pio-action">
-            <span class="pio-home"></span>
-            <span class="pio-info"></span>
-            <span class="pio-night"></span>
-            <span class="pio-close"></span>
-        </div>
-        <div id="L2dCanvas" width="300" height="500"></canvas>
-        <div class="pio-dialog">想阅读 “Element Upload 组件上传多文件的坑” 吗？</div>
+    <!-- <div id="l2d-toggle" class="">
+        <span>看版娘</span>
     </div>
-    <!-- <div class="Canvas" style="position: fixed; right: 10px; bottom: 10px;z-index: 99999999" id="L2dCanvas"></div> -->
+    <div class="l2d" style="bottom: 0px;">
+        <div class="Canvas" id="L2dCanvas">
+            <div id="l2d-tool">
+                <span class="fa fa-lg fa-comment"></span>
+                <span class="fa fa-lg fa-paper-plane"></span>
+                <span class="fa fa-lg fa-user-circle"></span>
+                <span class="fa fa-lg fa-street-view"></span>
+                <span class="fa fa-lg fa-camera-retro"></span>
+                <span class="fa fa-lg fa-info-circle"></span>
+                <span class="fa fa-lg fa-times"></span>
+            </div>
+            <div id="l2d-tips" class="">如果有疑问，请尽快留言哦～</div>
+        </div>
+    </div> -->
+    <div class="Canvas" style="position: fixed; right: 10px; bottom: 10px;z-index: 99999999" id="L2dCanvas"></div>
 </body>
 <!------ 依赖 JS | Dependent JS ------>
 <!---- 可选 | Optional ---->
@@ -89,13 +51,7 @@
             modelName: 'bisimai_2',
             sounds: [
             ]
-        })
-    }
-
-    function loadModel() {
-        var modelName = document.getElementById('modelName').value
-        console.info(modelName + ' loading....' )
-        l2dv.loadModel(modelName)
+        });
     }
 </script>
 </html>
