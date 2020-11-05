@@ -15,7 +15,7 @@ document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-a
 document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/css/live2dv3.init.css">');
 
 // 创建看板娘div
-document.body.insertAdjacentHTML("beforeend", 
+document.write( 
     `<div id="l2d-toggle" class="" style="visibility:hidden;">
         <span>看版娘</span>
      </div>
