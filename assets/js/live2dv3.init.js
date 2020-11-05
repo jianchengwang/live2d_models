@@ -1,9 +1,25 @@
+// 依赖js
+// 兼容低版本浏览器
+document.write('<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"> </script>');
+// 音频播放
+document.write('<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>');
+// 必需
+document.write('<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>');
+document.write('<script src="https://cdn.jsdelivr.net/npm/pixi.js@4.6.1/dist/pixi.min.js"></script>');
+// live2dv3.js
+document.write('<script src="https://cdn.jsdelivr.net/npm/live2dv3@1.2.2/live2dv3.min.js"></script>');
+// 内置角色
+document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/js/charData.js"></script>');
+// 依赖css
+document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">');
+document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/css/live2dv3.init.css">');
+
 // 创建看板娘div
 document.body.insertAdjacentHTML("beforeend", 
-    `<div id="l2d-toggle" class="">
+    `<div id="l2d-toggle" class="" style="visibility:hidden;">
         <span>看版娘</span>
      </div>
-     <div class="l2d" style="bottom: 0px;">
+     <div id="l2d-main" class="l2d" style="bottom: 0px;visibility:hidden;">
         <div class="Canvas" id="L2dCanvas">
             <div id="l2d-tool">
                 <span class="fa fa-lg fa-comment"></span>
@@ -18,21 +34,9 @@ document.body.insertAdjacentHTML("beforeend",
         </div>
      </div>`);
 
-// 依赖js
-// 兼容低版本浏览器
-document.write('<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"> </script>');
-// 音频播放
-document.write('<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>');
-// 必需
-document.write('<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>');
-document.write('<script src="https://cdn.jsdelivr.net/npm/pixi.js@4.6.1/dist/pixi.min.js"></script>');
-// live2dv3.js
-document.write('<script src="https://cdn.jsdelivr.net/npm/live2dv3@1.2.2/live2dv3.min.js"></script>');
-// 内置角色
-document.write('<script src="./asserts/js/charData.js"></script>');
-
 window.onload = () => {
-    createL2dv();
+    // 创建l2dv
+    createL2dv()
 }
 
 // 创建l2dv
@@ -48,8 +52,13 @@ function createL2dv() {
                 'https://cdn.jsdelivr.net/npm/live2dv3@latest/assets/biaoqiang_3/sounds/demo.mp3' // 也可以是网址
             ]
         })
+        // 显示动态创建的元素
+        setTimeout(() => {
+            document.getElementById("l2d-toggle").style.visibility = "visible"
+            document.getElementById("l2d-main").style.visibility = "visible"
+        }, 2000);
     }
-     // 注册事件
+    // 注册事件
      registerEventListener();
 }
 
