@@ -6,7 +6,7 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howl
 // 必需
 document.write('<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>');
 // live2dv3.js
-document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/jslive2dv3.js"></script>');
+document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/js/live2dv3.js"></script>');
 // 内置角色
 document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/js/charData.js"></script>');
 // 依赖css
