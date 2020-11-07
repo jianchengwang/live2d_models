@@ -4,18 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <title>live2d-v3-demo</title>
+    <script src="./assets/js/charData.js"></script>
 </head>
 
 <body>
-    <!-- Canvas -->
-    u can find more model from https://github.com/Yukariin/AzurLaneL2DViewer <br/>
-    <input type="text" value="bisimai_2" id="modelName" />
-    <select id="selectModel">
-    </select>
-    <button onclick="loadModel();">loadModel</button><br/>
+    <div>
+        <div>u can find more model from https://github.com/Yukariin/AzurLaneL2DViewer</div>
+        <select id="charSelect" style="width: 200px;"></select>
+        <input type="text" value="yichui_2" id="modelName" /><button onclick="loadModel();">loadModel</button><br/>
+    </div>
 </body>
 <script src="./assets/js/live2dv3.init.js"> </script>
 <script>
-    
+    function renderCharDataSelect() {
+        var charSelect = document.getElementById("charSelect");  
+        for(let key in charData) {
+        var opt = document.createElement("option");  
+        var _text = document.createTextNode(key); 
+        opt.appendChild(_text);  
+        opt.setAttribute("value", charData[key]);  
+        charSelect.appendChild(opt);
+        }
+        charSelect.addEventListener("change", changeChar)
+    }
+    function changeChar() {
+        var charSelect = document.getElementById("charSelect"); 
+        var modelName = charSelect.options[charSelect.selectedIndex].value;
+        document.getElementById('modelName').value = modelName;
+        l2dv.loadModel(modelName)
+    }
+    renderCharDataSelect();
 </script>
 </html>

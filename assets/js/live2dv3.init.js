@@ -1,13 +1,12 @@
 // 依赖js
 // 兼容低版本浏览器
-document.write('<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"> </script>');
+document.write('<script src="https://unpkg.com/core-js-bundle@3.6.1/minified.js"></script>');
 // 音频播放
 document.write('<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>');
 // 必需
 document.write('<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>');
-document.write('<script src="https://cdn.jsdelivr.net/npm/pixi.js@4.6.1/dist/pixi.min.js"></script>');
 // live2dv3.js
-document.write('<script src="https://cdn.jsdelivr.net/npm/live2dv3@1.2.2/live2dv3.min.js"></script>');
+document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/jslive2dv3.js"></script>');
 // 内置角色
 document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/js/charData.js"></script>');
 // 依赖css
@@ -43,15 +42,17 @@ window.onload = () => {
 var l2dv
 function createL2dv() {
     if(!l2dv) {
-        l2dv = new l2dViewer({
-            el: document.getElementById('L2dCanvas'), // 要添加Live2d的元素
-            basePath: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets', // 模型根目录
-            modelName: 'dujiaoshou_6', // 模型名称
-            sounds: [ // 触摸播放声音
-                'sounds/demo.mp3', // 相对路径是相对于模型文件夹
-                'https://cdn.jsdelivr.net/npm/live2dv3@latest/assets/biaoqiang_3/sounds/demo.mp3' // 也可以是网址
-            ]
-        })
+        l2dv = new L2dViewer({
+            el: document.getElementById('L2dCanvas'),
+            // modelHomePath: './assets/model/',
+            // modelHomePath: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/',
+            modelHomePath: 'https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/model/moc3/',
+            model: 'lafei_4',
+            // bgImg: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/bg/bg_church_jp.png',
+            width: 500,
+            height: 300,
+            autoMotion: false
+        });
         // 显示动态创建的元素
         setTimeout(() => {
             document.getElementById("l2d-toggle").style.visibility = "visible"

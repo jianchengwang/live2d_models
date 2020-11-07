@@ -117,7 +117,7 @@ live2d:
 
 参考
 
- https://github.com/HCLonely/Live2dV3
+https://github.com/HCLonely/Live2dV3
 
 https://github.com/Yukariin/AzurLaneL2DViewer
 
@@ -125,44 +125,89 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 <!------ 位置可自定义 ------>
 <div class="Canvas" style="position: fixed; right: 10px; bottom: 10px;z-index: 99999999" id="L2dCanvas"></div>
 
-<!------ 依赖 JS | Dependent JS ------>
-<!---- 可选 | Optional ---->
-<!-- 兼容低版本浏览器 | Compatible with low-level browsers -->
-<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"> </script>
-<!-- 音频播放兼容 | Audio playback compatible -->
-<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>
-<!---- 必需 | Required ---->
-<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi.js@4.6.1/dist/pixi.min.js"></script>
-<!-- live2dv3.js -->
-<script src="https://cdn.jsdelivr.net/npm/live2dv3@1.2.2/live2dv3.min.js"></script>
+<!-- Pollyfill script -->
+<script src="https://unpkg.com/core-js-bundle@3.6.1/minified.js"></script>
+<!-- Live2DCubismCore script -->
+<script src = "https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+<!-- Build script -->
+<script src = "./assets/js/live2dv3.js"></script>
 
 <!------ 加载Live2d模型 | Load Live2d model ------>
 <script>
-    window.onload = () => {
-        new l2dViewer({
-            el: document.getElementById('L2dCanvas'),
-            basePath: 'https://cdn.jsdelivr.net/npm/live2dv3@latest/assets',
-            modelName: 'biaoqiang_3',
-            sounds: [
-                'sounds/demo.mp3', // 相对路径是相对于模型文件夹
-                'https://cdn.jsdelivr.net/npm/live2dv3@latest/assets/biaoqiang_3/sounds/demo.mp3' // 也可以是网址
-            ]
-        })
-    }
+    var l2dv;
+  window.onload = () => {
+    l2dv = new L2dViewer({
+        el: document.getElementById('L2dCanvas'),
+        modelHomePath: './assets/model/moc3/',
+        // modelHomePath: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/',
+        model: 'yichui_2',
+        // bgImg: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/bg/bg_church_jp.png',
+        bgImg: './assets/image/bg/bg_1.png',
+        width: 500,
+        height: 300,
+        autoMotion: false,
+        _finishedLoadModel: function() {
+          var motionDiv = document.getElementById("motionDiv"); 
+          motionDiv.innerHTML = "";
+          l2dv.getMotions().forEach((v,k) => {
+            let motionName = k;
+            if(motionName.startsWith('motions/')) {
+              motionName = motionName.replace('motions/', '');
+            }
+            motionName = motionName.replace('.motion3.json', '');
+            var bt = document.createElement("button");
+            bt.innerHTML = motionName; 
+            bt.classList.add('btnGenericText');
+            bt.onclick = function () {                          //绑定点击事件
+              l2dv.startMotion(k);
+            };
+            motionDiv.appendChild(bt);
+          })
+        },
+        _onTap: function() {
+            // 点击canvas触发事件
+        }
+    });
+  }
 </script>
 ```
-
+------
 |     参数      |             类型              |                             描述                             |  默认   |
 | :-----------: | :---------------------------: | :----------------------------------------------------------: | :-----: |
 |     `el`      | [必需] DOM 对象或 jQuery 对象 | 要挂载Live2d模型的元素, 支持DOM选择器和jQuery选择器，例：`document.getElementById('L2dCanvas')`或`document.querySelector('#L2dCanvas')`或`$('#L2dCanvas')` | `null`  |
-|  `basePath`   |         [必需] String         |                          模型根目录                          | `null`  |
-|  `modelName`  |         [必需] String         |                           模型目录                           | `null`  |
+|  `modelHomePath`   |         [必需] String    |                          模型根目录                          | `null`  |
+|  `model`  |         [必需] String         |                        初始显示模型                           | `null`  |
+|    `bgImg`    |         [可选] String         |                    Canvas背景图片，有图片的话，Canvas的宽高会等于背景图片宽高                    |  `null`  |
 |    `width`    |         [可选] Number         |                    Canvas宽度，单位: `px`                    |  `500`  |
 |   `height`    |         [可选] Number         |                    Canvas高度，单位: `px`                    |  `300`  |
-|  `sizeLimit`  |        [可选] Boolean         |            当窗口大小小于设置的宽或高时不加载模型            | `false` |
-| `mobileLimit` |        [可选] Boolean         |                       移动端不加载模型                       | `false` |
-|   `sounds`    |         [可选] Array          |                 触摸播放声音， 留空则不播放                  | `null`  |
+|  `autoMotion`  |        [可选] Boolean        |                   是否自动随机触发Motion                     | `true` |
+| `_finishedLoadModel` |  [可选] Function       |                   模型加载完回调函数                         | `null` |
+|   `_onTap`    |         [可选] Function       |  点击模型触发函数，为空的话会默认触发随机Motion               | `null`  |
+
+------
+
+```js
+// L2dViewer 对外暴露的方法
+// 获取模型信息
+public getModel(): LAppModel {
+}
+// 加载模型
+public loadModel(modelName: string) {
+}
+// 触发模型 motion
+public startMotion(motionName: string) {
+}
+// 获取模型 motion
+public getMotions(): Map<any,any> {
+}
+// 设置模型背景
+public setBgImg(bgImg: string) {
+}
+```
+
+------
+
+当然，你感兴趣的话，并且有一定的前端基础，建议自己构建 **live2dv3.js**，可以下载官方提供的**Cubism Web SDK**，里面已经包含一个简单示例了，简单修改下就可以了，也可以参照我的[demo代码](https://github.com/jianchengwang/todo-web/raw/master/live2d-web)
 
 ### 模型预览
 
@@ -346,7 +391,7 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 #### Eikanya提取 moc3
 
-这个大佬提取了很多，所以这里只列出我喜欢的部分模型
+这个大佬提取了很多，所以这里只列出我喜欢的部分模型，[在线预览](https://jianchengwang.github.io/live2d_models/)
 
 ##### yichui_2
 
@@ -366,10 +411,12 @@ https://github.com/Yukariin/AzurLaneL2DViewer
 
 ### 资源来源
 
+[Live2d官网](https://www.live2d.com/zh-CHS/)
+
 [梦象 Live2D 模型站](https://mx.paugram.com)
 
 [Eikanya/Live2d-model](https://github.com/Eikanya/Live2d-model)
 
-[Live2dPreview](https://l2d.alg-wiki.com/)
+[Azur Lane Live2D Viewer](https://l2d.alg-wiki.com/)
 
 [DownGit](https://minhaskamal.github.io/DownGit/#/home)

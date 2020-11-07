@@ -1,39 +1,195 @@
 <!DOCTYPE html>
-
-<html >
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>live2d-v3-demo</title>
-</head>
-<body>
-    <!-- Canvas -->
-    u can find more model from https://github.com/Yukariin/AzurLaneL2DViewer <br/>
-    <input type="text" value="bisimai_2" id="modelName" /><button onclick="loadModel();">loadModel</button><br/>
-    <div class="Canvas" style="position: fixed; right: 10px; bottom: 10px;z-index: 99999999" id="L2dCanvas"></div>
-</body>
-<!------ 依赖 JS | Dependent JS ------>
-<!---- 可选 | Optional ---->
-<!-- 兼容低版本浏览器 | Compatible with low-level browsers -->
-<script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"> </script>
-<!-- 音频播放兼容 | Audio playback compatible -->
-<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>
-<!---- 必需 | Required ---->
-<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi.js@4.6.1/dist/pixi.min.js"></script>
-<!-- live2dv3.js -->
-<script src="https://cdn.jsdelivr.net/npm/live2dv3@1.2.2/live2dv3.min.js"></script>
-
-<!------ 加载Live2d模型 | Load Live2d model ------>
-<script>
-    var l2dv
-    window.onload = () => {
-        l2dv = new l2dViewer({
-            el: document.getElementById('L2dCanvas'),
-            basePath: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets',
-            modelName: 'bisimai_2',
-            sounds: [
-            ]
-        });
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1900">
+  <title>Live2d V3 Demo</title>
+  <style>
+    html, body {
+        margin: 0;
     }
+    .form-control {
+        width: 300px;
+        height: calc(1.5em + .75rem + 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .form-input {
+        width: 200px;
+        height: calc(1.2em+ 2px);
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    .btnGenericText {
+        white-space: nowrap;
+        height: 30px;
+        text-align: center;
+        vertical-align: middle;
+        display: table-cell;
+        background-color: #24252d;
+        border-style: solid;
+        border-color: #5c5d70;
+        border-width: 1px;
+        cursor: pointer;
+        padding: 0px 7px 0px 7px;
+        font-size: 14px;
+        color: white;
+        margin-bottom: 5px;
+        margin-left: 5px;
+    }
+    .selector {
+        width: 80%;
+        height: 90%;
+        position: absolute;
+        left: 10%;
+        background-color: #5c5d70;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 3px;
+    }
+    .thumbbutton {
+        cursor: pointer;
+        height: 101px;
+        width: 180px;
+        display: inline-block;
+        margin-top: 20px;
+        margin-left: 20px;
+        border-radius: 3px;
+    }
+  </style>
+
+  <!-- Pollyfill script -->
+  <script src="https://unpkg.com/core-js-bundle@3.6.1/minified.js"></script>
+  <!-- Live2DCubismCore script -->
+  <script src = "https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+  <!-- Build script -->
+  <script src = "./assets/js/live2dv3.js"></script>
+</head>
+<body style="text-align: center;background-color: rgb(73, 74, 90); color: white; overflow: auto;">
+  <div>
+    <div align="center" style="color: white;margin-bottom: 10px;">
+      <h1>Live2D V3 Viewer</h1>
+      <div style="margin-top: 2px;">u can find more model from https://github.com/Yukariin/AzurLaneL2DViewer</div>
+    </div>
+    <select id="charSelect" class="form-control" style="background-color: #24252d; color: #ffffff;"></select>
+    <input class="form-input" type="text" value="yichui_2" id="modelName" /><button class="btnGenericText" style="height: 40px;" onclick="loadModel();">loadModel</button><br/>
+    <div align="center" style="margin-top:15px; margin-bottom: 15px;">
+        <div class="btnGenericText" onclick="onSelectBG()" style="font-size: 17px; height: 40px;"><b>Change Background</b></div>
+    </div>
+    <div id="motionDiv" style="margin-top: 5px;"></div>
+  <!-- 这里可以定义画布的大小位置 -->
+  <div id="L2dCanvas" class="live2d" style="position:block;margin:50px auto;z-index: -1;"></div>
+</body>
+<script src="./assets/js/charData.js"></script>
+<script src="./assets/js/backgroundData.js"></script>
+<script type="text/javascript">
+  var l2dv;
+  window.onload = () => {
+    l2dv = new L2dViewer({
+        el: document.getElementById('L2dCanvas'),
+        modelHomePath: './assets/model/moc3/',
+        // modelHomePath: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/',
+        model: 'yichui_2',
+        // bgImg: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/bg/bg_church_jp.png',
+        bgImg: './assets/image/bg/bg_1.png',
+        autoMotion: false,
+        _finishedLoadModel: function() {
+          var motionDiv = document.getElementById("motionDiv"); 
+          motionDiv.innerHTML = "";
+          l2dv.getMotions().forEach((v,k) => {
+            let motionName = k;
+            if(motionName.startsWith('motions/')) {
+              motionName = motionName.replace('motions/', '');
+            }
+            motionName = motionName.replace('.motion3.json', '');
+            var bt = document.createElement("button");
+            bt.innerHTML = motionName; 
+            bt.classList.add('btnGenericText');
+            bt.onclick = function () {                          //绑定点击事件
+              l2dv.startMotion(k);
+            };
+            motionDiv.appendChild(bt);
+          })
+        }
+    });
+    renderCharDataSelect();
+  }
+
+  function renderCharDataSelect() {
+    var charSelect = document.getElementById("charSelect");  
+    for(let key in charData) {
+      var opt = document.createElement("option");  
+      var _text = document.createTextNode(key); 
+      opt.appendChild(_text);  
+      opt.setAttribute("value", charData[key]);  
+      charSelect.appendChild(opt);
+    }
+    charSelect.addEventListener("change", changeChar)
+  }
+
+  function changeChar() {
+    var charSelect = document.getElementById("charSelect"); 
+    var modelName = charSelect.options[charSelect.selectedIndex].value;
+    document.getElementById('modelName').value = modelName;
+    loadModel()
+  }
+
+  function loadModel() {
+    var modelName = document.getElementById('modelName').value;
+    l2dv.loadModel(modelName)
+  }
+
+  function onSelectBG(){
+      console.log(window.pageXOffset+" : "+window.pageYOffset);
+      var div=document.createElement('div');
+      div.className="darken";div.id="darken";
+      div.style.top=window.pageYOffset+"px";
+      div.addEventListener("click",function(e){document.body.removeChild(document.getElementById("selector"));
+      document.body.removeChild(document.getElementById("darken"));
+      document.body.style.overflow="auto";},false);
+      document.body.appendChild(div);document.body.style.overflow="hidden";
+      var selector=document.createElement('div');
+      selector.id="selector";selector.className="selector";
+      selector.style.top=(window.pageYOffset+(window.innerHeight*0.05))+"px";
+      document.body.appendChild(selector);
+      for(var i=0;i<backgroundData.length;i++){
+          var img = document.createElement('div');img.className="thumbbutton";
+          img.style.backgroundImage="url(../assets/image/bg/"+backgroundData[i]+")";img.style.backgroundSize="100%";
+          img.id = backgroundData[i];
+          img.addEventListener("click",function(e) {
+              l2dv.setBgImg("./assets/image/bg/" + this.id);
+              document.body.removeChild(document.getElementById("selector"));
+              document.body.removeChild(document.getElementById("darken"));
+              document.body.style.overflow="auto";
+          },false);
+          document.getElementById("selector").appendChild(img);
+        }
+    }
+
+  // aierdeliqi_4
+  // banrenma_2
+  // biaoqiang
+  // biaoqiang_3
+  // chuixue_3
+  // kelifulan_3
+  // lafei
+  // lafei_4
+  // xuefeng
 </script>
 </html>
