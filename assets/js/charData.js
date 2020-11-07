@@ -43,6 +43,7 @@ var charData = {
     "Ibuki (Wish of a Snow Goddess)": "yichui_2",
 
     "dujiaoshou_6": "dujiaoshou_6",
+    "aimierbeierding_3": "aimierbeierding_3",
     "edu_3": "edu_3",
     "hemin_3": "hemin_3",
     "shengluyisi_3": "shengluyisi_3",
