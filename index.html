@@ -170,7 +170,8 @@
       document.body.appendChild(selector);
       for(var i=0;i<backgroundData.length;i++){
           var img = document.createElement('div');img.className="thumbbutton";
-          img.style.backgroundImage="url(./assets/image/bg/"+backgroundData[i]+")";img.style.backgroundSize="100%";
+          img.style.backgroundImage="url(./assets/image/bg/"+backgroundData[i]+")";
+          img.style.backgroundSize="100%";
           img.id = backgroundData[i];
           img.addEventListener("click",function(e) {
               l2dv.setBgImg("./assets/image/bg/" + this.id);
