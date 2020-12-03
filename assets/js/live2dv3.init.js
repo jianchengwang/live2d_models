@@ -2,9 +2,10 @@
 // 兼容低版本浏览器
 document.write('<script src="https://unpkg.com/core-js-bundle@3.6.1/minified.js"></script>');
 // 音频播放
-document.write('<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>');
+// document.write('<script src="https://cdn.jsdelivr.net/npm/howler@2.1.3/dist/howler.min.js"></script>');
 // 必需
-document.write('<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>');
+// document.write('<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>');
+document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/js/lib/live2dcubismcore.min.js"></script>');
 // live2dv3.js
 document.write('<script src="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/js/live2dv3.js"></script>');
 // 内置角色
@@ -14,7 +15,7 @@ document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-a
 document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/css/live2dv3.init.css">');
 
 // 创建看板娘div
-document.write( 
+document.write(
     `<div id="l2d-toggle" class="" style="visibility:hidden;">
         <span>看版娘</span>
      </div>
@@ -41,7 +42,7 @@ window.onload = () => {
 // 创建l2dv
 var l2dv
 function createL2dv() {
-    if(!l2dv) {
+    if (!l2dv) {
         l2dv = new L2dViewer({
             el: document.getElementById('L2dCanvas'),
             // modelHomePath: './assets/model/',
@@ -60,7 +61,7 @@ function createL2dv() {
         }, 2000);
     }
     // 注册事件
-     registerEventListener();
+    registerEventListener();
 }
 
 // 监听事件
@@ -89,7 +90,7 @@ function registerEventListener() {
     document.getElementById("l2d-toggle").addEventListener("click", showModel);
 
     // other
-    const devtools = () => {};
+    const devtools = () => { };
     console.log("%c", devtools);
     devtools.toString = () => {
         showMessage("哈哈，你打开了控制台，是想要看看我的小秘密吗？", 4000, 9);
@@ -126,16 +127,16 @@ function showModel() {
 // 加载model
 function loadModel(modelName) {
     showMessage("正在切换看板娘...", 6000, 1);
-    if(modelName instanceof MouseEvent) {
+    if (modelName instanceof MouseEvent) {
         modelName = randomChar();
-    } else if(!modelName) {
-        if(document.getElementById('modelName')) {
+    } else if (!modelName) {
+        if (document.getElementById('modelName')) {
             modelName = document.getElementById('modelName').value
         } else {
             modelName = randomChar();
         }
     }
-    console.info(modelName + ' loading....' )
+    console.info(modelName + ' loading....')
     l2dv.loadModel(modelName)
 }
 
@@ -162,7 +163,7 @@ function showHitokoto() {
 // 显示tip消息
 function showMessage(text, timeout, priority) {
     if (!text) return;
-    if(!timeout) timeout = 1000;
+    if (!timeout) timeout = 1000;
     const tips = document.getElementById("l2d-tips");
     tips.innerHTML = text;
     tips.classList.add("l2d-tips-active");
@@ -171,4 +172,3 @@ function showMessage(text, timeout, priority) {
         tips.classList.remove("l2d-tips-active");
     }, timeout);
 }
-  
