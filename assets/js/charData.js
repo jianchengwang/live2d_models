@@ -32,7 +32,7 @@ var charData = {
     // "Z46 (First Summer)": "z46_2",
 
     "Eldridge (New Year's Handholding)": "aierdeliqi_4",
-    "Centaur (Undine of the Beach)": "banrenma_2",
+    // "Centaur (Undine of the Beach)": "banrenma_2",
     "Javelin": "biaoqiang",
     "Javelin (Beach Picnic!)": "biaoqiang_3",
     "Fubuki (Music Pixy)": "chuixue_3",
@@ -40,16 +40,16 @@ var charData = {
     "Laffey": "lafei",
     "Laffey (New Year Rabbit)": "lafei_4",
     "Yukikaze": "xuefeng",
-    "Ibuki (Wish of a Snow Goddess)": "yichui_2",
+    // "Ibuki (Wish of a Snow Goddess)": "yichui_2",
 
-    "dujiaoshou_6": "dujiaoshou_6",
+    // "dujiaoshou_6": "dujiaoshou_6",
     "edu_3": "edu_3",
     "xuefeng_3": "xuefeng_3",
 
-    "1014100aqua": "1014100aqua",
-    "1024100": "1024100",
-    "1033113": "1033113",
-    "1044100": "1044100"
+    // "1014100aqua": "1014100aqua",
+    // "1024100": "1024100",
+    // "1033113": "1033113",
+    // "1044100": "1044100"
 
 
 };
