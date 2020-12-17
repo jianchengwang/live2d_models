@@ -42,13 +42,18 @@ window.onload = () => {
 // 创建l2dv
 var l2dv
 function createL2dv() {
-    if (!l2dv) {
+    let isShowModel = localStorage.getItem('showModel');
+    if (!l2dv && (isShowModel==undefined || isShowModel==='true')) {        
+        let initModelName = localStorage.getItem('modelName');
+        if(!initModelName) {
+            initModelName = 'lafei_4';
+        }
         l2dv = new L2dViewer({
             el: document.getElementById('L2dCanvas'),
             // modelHomePath: './assets/model/',
             // modelHomePath: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/',
             modelHomePath: 'https://cdn.jsdelivr.net/gh/jianchengwang/live2d_models@main/assets/model/moc3/',
-            model: 'lafei_4',
+            model: initModelName,
             // bgImg: 'https://cdn.jsdelivr.net/gh/alg-wiki/AzurLaneL2DViewer@gh-pages/assets/bg/bg_church_jp.png',
             width: 500,
             height: 300,
@@ -59,9 +64,15 @@ function createL2dv() {
             document.getElementById("l2d-toggle").style.visibility = "visible"
             document.getElementById("l2d-main").style.visibility = "visible"
         }, 2000);
+        // 注册事件
+        registerEventListener();
+    } else {
+        setTimeout(() => {
+            document.getElementById("l2d-toggle").style.visibility = "visible"
+        }, 2000);
+        document.getElementById("l2d-toggle").classList.add("l2d-toggle-active");
+        document.getElementById("l2d-toggle").addEventListener("click", showModel);
     }
-    // 注册事件
-    registerEventListener();
 }
 
 // 监听事件
@@ -103,20 +114,28 @@ function registerEventListener() {
     });
 }
 
-// 显示模型
-function hideModel(l2d_toggle) {
+// 隐藏模型
+function hideModel() {
     showMessage("愿你有一天能与重要的人重逢。", 2000, 11);
     setTimeout(() => {
         document.getElementById("L2dCanvas").style.bottom = "-500px";
         document.getElementById("L2dCanvas").style.display = "none";
-        document.getElementById("l2d-toggle").classList.add("l2d-toggle-active");
+        const l2d_toggle = document.getElementById("l2d-toggle");
+        l2d_toggle.classList.add("l2d-toggle-active");
+        l2d_toggle.style.visibility = "visible"
+        localStorage.setItem('showModel', false);
     }, 3000);
 }
 
-// 隐藏模型
+// 显示模型
 function showModel() {
     const l2d_toggle = document.getElementById("l2d-toggle");
+    l2d_toggle.style.visibility = "hidden"
     l2d_toggle.classList.remove("l2d-toggle-active");
+    localStorage.setItem('showModel', true);
+    if(!l2dv) {
+        createL2dv()
+    }
     document.getElementById("L2dCanvas").style.display = "";
     setTimeout(() => {
         document.getElementById("L2dCanvas").style.bottom = 0;
@@ -138,6 +157,7 @@ function loadModel(modelName) {
     }
     console.info(modelName + ' loading....')
     l2dv.loadModel(modelName)
+    localStorage.setItem('modelName', modelName);
 }
 
 // 随机选择角色模型
