@@ -46,7 +46,7 @@ function createL2dv() {
     if (!l2dv && (isShowModel == undefined || isShowModel === 'true')) {
         let initModelName = localStorage.getItem('modelName');
         if (!initModelName) {
-            initModelName = 'lafei_4';
+            initModelName = 'xuefeng_3';
         }
         l2dv = new L2dViewer({
             el: document.getElementById('L2dCanvas'),
