@@ -180,7 +180,7 @@
 
   function updateParentModel() {
     var modelName = document.getElementById('modelName').value;
-    window.opener.postMessage(modelName)
+    window.opener.postMessage(modelName, '*')
     alert('update parent model done.')
   }
 
