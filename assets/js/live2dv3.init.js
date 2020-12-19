@@ -114,6 +114,12 @@ function registerEventListener() {
     window.addEventListener("visibilitychange", () => {
         if (!document.hidden) showMessage("哇，你终于回来了～", 4000, 9);
     });
+    window.onmessage = function (e) {
+        var modelName = e.data;
+        if (modelName) {
+            l2dv.loadModel(modelName)
+        }
+    };
 }
 
 // 隐藏模型
