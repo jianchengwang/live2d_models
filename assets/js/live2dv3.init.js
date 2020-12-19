@@ -115,10 +115,12 @@ function registerEventListener() {
         if (!document.hidden) showMessage("哇，你终于回来了～", 4000, 9);
     });
     window.addEventListener('message', function (e) {
-        var modelName = e.data;
-        console.info('onmessage: ' + modelName);
-        if (modelName) {
-            l2dv.loadModel(modelName)
+        if (e.data && e.data.modelName) {
+            let modelName = e.data.modelName;
+            console.info('onmessage: ' + modelName);
+            if (modelName) {
+                l2dv.loadModel(modelName)
+            }
         }
     }, false)
 }
