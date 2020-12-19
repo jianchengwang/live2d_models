@@ -40,16 +40,30 @@ var charData = {
     "Laffey": "lafei",
     "Laffey (New Year Rabbit)": "lafei_4",
     "Yukikaze": "xuefeng",
-    // "Ibuki (Wish of a Snow Goddess)": "yichui_2",
-
-    // "dujiaoshou_6": "dujiaoshou_6",
+    "Ibuki (Wish of a Snow Goddess)": "yichui_2",
+    "dujiaoshou_6": "dujiaoshou_6",
     "edu_3": "edu_3",
-    "xuefeng_3": "xuefeng_3",
 
-    // "1014100aqua": "1014100aqua",
-    // "1024100": "1024100",
-    // "1033113": "1033113",
-    // "1044100": "1044100"
+    "Yukikaze (Winter's Snowy Wind)": "xuefeng_3",
+    "Ping Hai (Dragon Sisters! [P])": "pinghai_4",
+    "Jean Bart": "rangbaer_3",
+    "Black Prince (White Princess)": "heitaizi_2",
+    "Cooper (Blazing Tennis Battle)": "kubo_2",
+    "Ryuuhou (Firebird's New Year Dance)": "longfeng_2",
+    "Noshiro (Uncharted Festival Grounds?)": "nengdai_2",
+    "Gneisenau (Nightmarish Succubus)": "genaisennao_2",
+    "Surcouf (Shopping Time!)": "xukufu_2",
+    "Shoukaku (Dancing Crane in the Wind)": "xianghe_2",
+    "Vampire (Princess of the Night)": "xixuegui_4",
+    "Honolulu (Festival Date)": "huonululu_5",
+    "Ayanami": "lingbo",
+    "Akashi": "mingshi",
+    "St. Louis (Tipsy Snow)": "shengluyisi_3",
+
+    "Z1014100aqua": "1014100aqua",
+    "Z1024100": "1024100",
+    "Z1033113": "1033113",
+    "Z1044100": "1044100"
 
 
 };

@@ -92,19 +92,32 @@
 <body style="text-align: center;background-color: rgb(73, 74, 90); color: white; overflow: auto;">
   <div>
     <div align="center" style="color: white;margin-bottom: 10px;">
-      <h1>Live2D V3 Viewer</h1>
-      <div style="margin-top: 2px;">u can find more model from https://github.com/Yukariin/AzurLaneL2DViewer</div>
-    </div>
-    <select id="charSelect" class="form-control" style="background-color: #24252d; color: #ffffff;"></select>
-    <input class="form-input" type="text" value="aierdeliqi_4" id="modelName" /><button class="btnGenericText"
-      style="height: 40px;" onclick="loadModel();">loadModel</button><br />
-    <div align="center" style="margin-top:15px; margin-bottom: 15px;">
-      <div class="btnGenericText" onclick="onSelectBG()" style="font-size: 17px; height: 40px;"><b>Change Background</b>
+      <h1><a style="color: white;" href="https://github.com/jianchengwang/live2d_models">Live2D V3 Viewer</a></h1>
+      <div style="margin-top: 2px;">
+        You can find more model from
+        <a style="color: white;" href="https://github.com/alg-wiki/AzurLaneL2DViewer">
+          AzurLaneL2DViewer</a>&nbsp;&nbsp;
+        <a style="color: white;" href="https://github.com/Eikanya/Live2d-model">
+          Eikanya Live2d Model</a>&nbsp;&nbsp;
       </div>
-    </div>
-    <div id="motionDiv" style="margin-top: 5px;"></div>
-    <!-- 这里可以定义画布的大小位置 -->
-    <div id="L2dCanvas" class="live2d" style="position:block;margin:50px auto;z-index: -1;"></div>
+      <select id="charSelect" class="form-control"
+        style="margin-top: 15px;background-color: #24252d; color: #ffffff;"></select>
+      <input class="form-input" readonly type="text" value="aierdeliqi_4" id="modelName" /><button
+        class="btnGenericText" style="height: 40px;" onclick="updateParentModel();">loadModel</button><br />
+      <div align="center" style="margin-top:15px; margin-bottom: 15px;">
+        <div class="btnGenericText" onclick="onSelectBG()" style="font-size: 17px; height: 40px;"><b>Change
+            Background</b>
+        </div>
+      </div>
+      <div id="motionDiv" style="margin-top: 5px;"></div>
+      <!-- 这里可以定义画布的大小位置 -->
+      <div id="L2dCanvas" class="live2d" style="position:block;margin:50px auto;z-index: -1;"></div>
+      <p style="position: relative;margin-top: 4rem;" data-v-b686e500="">
+        Design ❤️
+        <a style="color:teal;" href="https://github.com/jianchengwang" target="_blank" rel="noopener noreferrer"
+          class="underline text-tfh" data-v-b686e500="">JianchengWang
+        </a>
+      </p>
 </body>
 <script src="./assets/js/charData.js"></script>
 <script src="./assets/js/backgroundData.js"></script>
@@ -163,6 +176,12 @@
   function loadModel() {
     var modelName = document.getElementById('modelName').value;
     l2dv.loadModel(modelName)
+  }
+
+  function updateParentModel() {
+    var modelName = document.getElementById('modelName').value;
+    window.opener.l2dv.loadModel(modelName)
+    alert('update parent model done.')
   }
 
   function onSelectBG() {

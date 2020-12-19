@@ -23,8 +23,8 @@
 }
 
 #l2d {
-    bottom: 0px;
-    left: 0;
+	bottom: 0px;
+	left: 0;
 	line-height: 0;
 	position: fixed;
 	transform: translateY(3px);
@@ -45,11 +45,12 @@
 #L2dCanvas {
 	cursor: grab;
 	position: fixed;
-    bottom: 0px;
-    right: 0px;
-    right: -120px; 
-    bottom: 5px;
-    z-index: 1;
+	bottom: 0px;
+	right: 0px;
+	right: -120px; 
+	bottom: 5px;
+	z-index: 1;
+	pointer-events: none; /* 防止遮住鼠标点击页面其他内容 */
 }
 
 #L2dCanvas:active {

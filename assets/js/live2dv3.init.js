@@ -43,9 +43,9 @@ window.onload = () => {
 var l2dv
 function createL2dv() {
     let isShowModel = localStorage.getItem('showModel');
-    if (!l2dv && (isShowModel==undefined || isShowModel==='true')) {        
+    if (!l2dv && (isShowModel == undefined || isShowModel === 'true')) {
         let initModelName = localStorage.getItem('modelName');
-        if(!initModelName) {
+        if (!initModelName) {
             initModelName = 'lafei_4';
         }
         l2dv = new L2dViewer({
@@ -88,7 +88,9 @@ function registerEventListener() {
         showMessage("功能待定");
     });
     document.querySelector("#l2d-tool .fa-user-circle").addEventListener("click", loadModel);
-    document.querySelector("#l2d-tool .fa-street-view").addEventListener("click", loadModel);
+    document.querySelector("#l2d-tool .fa-street-view").addEventListener("click", () => {
+        open("https://jianchengwang.github.io/live2d_models/");
+    });
     document.querySelector("#l2d-tool .fa-camera-retro").addEventListener("click", () => {
         showMessage("功能待定");
     });
@@ -133,7 +135,7 @@ function showModel() {
     l2d_toggle.style.visibility = "hidden"
     l2d_toggle.classList.remove("l2d-toggle-active");
     localStorage.setItem('showModel', true);
-    if(!l2dv) {
+    if (!l2dv) {
         createL2dv()
     }
     document.getElementById("L2dCanvas").style.display = "";
