@@ -63,15 +63,15 @@ function createL2dv() {
         setTimeout(() => {
             document.getElementById("l2d-toggle").style.visibility = "visible"
             document.getElementById("l2d-main").style.visibility = "visible"
+            // 注册事件
+            registerEventListener();
         }, 2000);
-        // 注册事件
-        registerEventListener();
     } else {
         setTimeout(() => {
             document.getElementById("l2d-toggle").style.visibility = "visible"
+            document.getElementById("l2d-toggle").classList.add("l2d-toggle-active");
+            document.getElementById("l2d-toggle").addEventListener("click", showModel);
         }, 2000);
-        document.getElementById("l2d-toggle").classList.add("l2d-toggle-active");
-        document.getElementById("l2d-toggle").addEventListener("click", showModel);
     }
 }
 
