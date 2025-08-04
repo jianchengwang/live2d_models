@@ -1,0 +1,26 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "huohuo.moc3",
+		"Textures": [
+			"huohuo.8192/texture_00.png",
+			"huohuo.8192/texture_01.png",
+			"huohuo.8192/texture_02.png",
+			"huohuo.8192/texture_03.png"
+		],
+		"Physics": "huohuo.physics3.json",
+		"DisplayInfo": "huohuo.cdi3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

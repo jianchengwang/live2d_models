@@ -1,0 +1,58 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "kkk.moc3",
+		"Textures": [
+			"kkk.1024/texture_00.png"
+		],
+		"Motions": {
+			"Idle": [
+				{
+					"File": "Idle1.motion3.json"
+				},
+				{
+					"File": "Idle2.motion3.json"
+				},
+				{
+					"File": "Idle3.motion3.json"
+				}
+			],
+			"Tap@mune": [
+				{
+					"File": "Tap@body.motion3.json",
+					"FadeInTime": 0,
+					"FadeOutTime": 0
+				}
+			],
+			"Tap@head": [
+				{
+					"File": "Tap@head.motion3.json",
+					"FadeInTime": 0,
+					"FadeOutTime": 0
+				}
+			]
+		}
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	],
+	"HitAreas": [
+		{
+			"Id": "HitAreahead",
+			"Name": ""
+		},
+		{
+			"Id": "HitAreamune",
+			"Name": ""
+		}
+	]
+}

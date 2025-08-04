@@ -1,0 +1,31 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "ANIYA.moc3",
+		"Textures": [
+			"ANIYA.8192/texture_00.png",
+			"ANIYA.8192/texture_01.png",
+			"ANIYA.8192/texture_02.png",
+			"ANIYA.8192/texture_03.png",
+			"ANIYA.8192/texture_04.png",
+			"ANIYA.8192/texture_05.png"
+		],
+		"Physics": "ANIYA.physics3.json",
+		"DisplayInfo": "ANIYA.cdi3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeLOpen",
+				"ParamEyeROpen"
+			]
+		}
+	]
+}
