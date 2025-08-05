@@ -1,0 +1,23 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "Gloria.moc3",
+		"Textures": [
+			"Gloria.8192/texture_00.png"
+		],
+		"Physics": "Gloria.physics3.json",
+		"DisplayInfo": "Gloria.cdi3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

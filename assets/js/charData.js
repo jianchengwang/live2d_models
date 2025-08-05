@@ -63,7 +63,21 @@ var charData = {
     "Z1014100aqua": "1014100aqua",
     "Z1024100": "1024100",
     "Z1033113": "1033113",
-    "Z1044100": "1044100"
+    "Z1044100": "1044100",
 
+    "6xb": "6xb",
+    "ANIYA": "ANIYA",
+    "ariu": "ariu",
+    "huohuo": "huohuo",
+    "kkk": "kkk",
+    "IceGirl": "IceGirl",
+    "KTU15": "KTU15",
+
+    "Alexia": "Alexia",
+    "Gloria": "Gloria",
+    "kyoutani_ron": "kyoutani_ron",
+    "LiveroiD_A-Y01": "LiveroiD_A-Y01",
+    "LiveroiD_A-Y02": "LiveroiD_A-Y02",
+    "monv": "monv"
 
 };

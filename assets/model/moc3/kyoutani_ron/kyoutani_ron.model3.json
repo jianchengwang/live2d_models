@@ -1,0 +1,23 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "kyoutani_ron.moc3",
+		"Textures": [
+			"kyoutani_ron.4096/texture_00.png"
+		],
+		"Physics": "kyoutani_ron.physics3.json",
+		"DisplayInfo": "kyoutani_ron.cdi3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

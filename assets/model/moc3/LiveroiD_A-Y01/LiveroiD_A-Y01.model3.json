@@ -1,0 +1,50 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "LiveroiD_A-Y01.moc3",
+		"Textures": [
+			"LiveroiD_A-Y01.8192/texture_00.png"
+		],
+		"Physics": "LiveroiD_A-Y01.physics3.json",
+		"DisplayInfo": "LiveroiD_A-Y01.cdi3.json",
+		"Expressions": [
+			{
+				"Name": "blush",
+				"File": "../LiveroiD_A-Y02/blush.exp3.json"
+			},
+			{
+				"Name": "browLink",
+				"File": "../LiveroiD_A-Y02/browLink.exp3.json"
+			},
+			{
+				"Name": "cool",
+				"File": "../LiveroiD_A-Y02/cool.exp3.json"
+			},
+			{
+				"Name": "worried",
+				"File": "../LiveroiD_A-Y02/worried.exp3.json"
+			}
+		]
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeROpen",
+				"ParamEyeLOpen",
+				"Param",
+				"Param14"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": [
+				"ParamMouthOpenY",
+				"ParamMouthForm"
+			]
+		}
+	],
+	"HitAreas": []
+}
