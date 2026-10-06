@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {validateMotion,prepareMotion} from '../../v2/motion-validation.js';
+const motion={Version:3,Meta:{Duration:1,CurveCount:1,TotalSegmentCount:1,TotalPointCount:2},Curves:[{Target:'Parameter',Id:'ParamAngleX',Segments:[0,0,0,1,1]}]};
+test('valid curve counts accepted; under-allocated metadata, unknown and truncated segments rejected',()=>{assert.equal(validateMotion(motion),true);assert.throws(()=>validateMotion({...motion,Meta:{...motion.Meta,TotalPointCount:1}}));assert.throws(()=>validateMotion({...motion,Curves:[{Segments:[0,0,9,1,1]}]}));assert.throws(()=>validateMotion({...motion,Curves:[{Segments:[0,0,1,1,1]}]}));});
+
+test('count compatibility is explicit, source unchanged and geometry preserved',()=>{const broken={...motion,Meta:{...motion.Meta,TotalPointCount:1}};const before=JSON.stringify(broken);assert.throws(()=>prepareMotion(broken));const result=prepareMotion(broken,{compatibility:true});assert.equal(result.normalized,true);assert.equal(result.data.Meta.TotalPointCount,2);assert.equal(JSON.stringify(broken),before);assert.deepEqual(result.data.Curves,broken.Curves);});

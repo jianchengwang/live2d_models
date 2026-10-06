@@ -1,0 +1,5 @@
+dist/
+evidence/
+.playwright-cli/
+__pycache__/
+*.pyc

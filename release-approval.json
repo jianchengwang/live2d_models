@@ -1,0 +1,10 @@
+{
+  "approved": true,
+  "repository": "jianchengwang/live2d_models",
+  "corePublicationApproved": true,
+  "frozenRedistributionApproved": false,
+  "parentConfirmationRecorded": true,
+  "evidence": [{"date":"2026-10-06","source":"explicit user statement relayed by parent thread 01a0f0e4-a65a-723e-a103-a9e56809d03e","scope":"User states they already obtained Live2D official written approval covering this arbitrary-local-model browser workbench and authorizes its publication. No new terms accepted by agent. This does not grant model redistribution rights."}],
+  "modelRights": {},
+  "note": "Authorized additive code publication on the existing main Pages source. Reuse existing runtime URLs without copying model/Core bytes into the new artifact. Unknown model redistribution remains unapproved; full-site release mode stays blocked. Default code-only artifact must never replace the old site."
+}
