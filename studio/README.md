@@ -15,3 +15,13 @@ Image-to-model stages describe manual layer review, Editor rigging/export and va
 See [PUBLISHING.md](./PUBLISHING.md) for the authorized publication scope and preservation constraints. The offline Python catalog utilities are audit/test tools only. Run `node --test studio/tests/*.test.mjs` and `python3 -B -m unittest discover -s studio/tests -p 'test_*.py' -v` from the repository root. `python3 -B tools/build.py --site-addition --source .` builds the code addition plus the recorded homepage entry. It checks every original frozen path, allowing only the exact homepage revision recorded in `catalog/homepage-entry.json`; `catalog/frozen-files.json` remains unchanged. Never deploy that artifact as the complete old site.
 
 See [compatibility and verification](COMPATIBILITY.md) for the exact runtime audit, remaining texture limits and browser verification checklist.
+
+## Chat configuration and expanded layout
+
+The launcher expands into one workspace: Live2D on the left and chat on the right. Narrow containers stack the character above chat; settings use their own scrolling area. Escape leaves settings first, then collapses chat and restores focus to the launcher. Enter sends, Shift+Enter inserts a newline, and IME composition never submits.
+
+Demo replies require explicit `chat.mode: 'mock'`. Missing, cleared or invalid provider settings block sending instead of falling back to demo. HTTP/CORS/SSE errors remain visible and do not change the provider. Session keys stay in the Conversation instance only. Appearance and voice changes do not reset the configured conversation; changing the provider revokes its old session. Model switches, prompt changes and clearing chat cancel in-flight work and reset history; stale responses cannot repopulate the new conversation.
+
+Set `chat.systemPrompt` (up to 12,000 characters) in the generator or runtime settings. It is sent as the first system message on every request and is part of the public configuration, so it must not contain secrets. Runtime Apply synchronizes public chat settings back into the generator. Download/import JSON preserves public appearance, model, LLM and voice settings while ignoring credentials, trust flags, history and unknown fields. Imported direct mode always needs a new session key and endpoint confirmation. API keys are never included in snippets, bootstrap JS or ZIP exports.
+
+Automated chat tests use synthetic fetch responses and a DOM harness; they do not call a real provider or establish real-provider account validity. Actual desktop/mobile rendering and browser microphone/audio behavior still require browser QA.

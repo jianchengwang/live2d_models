@@ -5,7 +5,7 @@ import {Conversation} from '../v2/conversation.js';
 import {BehaviorMap} from '../v2/behavior.js';
 const $ = id => document.getElementById(id);
 const viewer = new Live2DViewer($('viewer'));
-const conversation=new Conversation(),behavior=new BehaviorMap(viewer);let chatController,history=[];
+const conversation=new Conversation(),behavior=new BehaviorMap(viewer);conversation.configure({mode:'mock'});let chatController,history=[];
 let models = [], current = null, coreAccepted = new Set(), selectedZip, imageMeta, job;
 let selection = 0, importController;const importedPackages=new Map();
 const label = (node,text) => { node.textContent = text; };
@@ -176,7 +176,7 @@ $('provider-form').addEventListener('submit',event=>{
  event.preventDefault();chatController?.abort();history=[];
  try{conversation.configure({mode:$('provider-mode').value,endpoint:$('endpoint').value,model:$('chat-model').value,key:$('api-key').value,trusted:$('trust-endpoint').checked});$('chat-status').textContent=conversation.summary.mode==='mock'?'本地 mock 已就绪':'已配置直连 '+new URL(conversation.summary.endpoint).origin+'；key 仅当前内存';}catch(error){$('chat-status').textContent=error.message;}finally{$('api-key').value='';}
 });
-$('clear-key').addEventListener('click',()=>{chatController?.abort();conversation.clear();history=[];$('api-key').value='';$('provider-mode').value='mock';$('trust-endpoint').checked=false;$('chat-output').textContent='';$('chat-input').value='';$('chat-status').textContent='已清除 key 和会话；恢复 mock';});
+$('clear-key').addEventListener('click',()=>{chatController?.abort();conversation.clear();history=[];$('api-key').value='';$('trust-endpoint').checked=false;$('chat-output').textContent='';$('chat-input').value='';$('chat-status').textContent='已清除 key 和会话；请重新应用对话设置，未切换到 mock';});
 $('apply-behavior').addEventListener('click',()=>{try{behavior.configure(JSON.parse($('behavior-profile').value));$('behavior-status').textContent='映射已更新；模型未声明的动作和表情会被拒绝';}catch(error){$('behavior-status').textContent=error.message;}});
 $('cancel-chat').addEventListener('click',()=>chatController?.abort());
 $('chat-form').addEventListener('submit',async event=>{

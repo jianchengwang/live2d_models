@@ -6,18 +6,36 @@ export function validateEndpoint(value){
 }
 const abortError=()=>new DOMException('会话已取消','AbortError');
 export class Conversation {
-  #key='';#config={mode:'mock'};
-  configure({mode='mock',endpoint='',model='',key='',trusted=false}){
-    this.clear();key=key.trim();
-    if(mode==='direct'||mode==='backend'){
-      if(!trusted || mode==='direct'&&(!key.trim()||!model.trim()) || model.length>200 || /[\x00-\x1f]/.test(model) || key&&(model.includes(key)||endpoint.includes(key)))throw new Error('需确认 endpoint 可信；BYOK 还需要模型与会话 key');
-      this.#config={mode,endpoint:validateEndpoint(endpoint),model:model.trim()};this.#key=mode==='direct'?key.trim():'';
-    }else if(mode!=='mock')throw new Error('不支持的 provider 模式');
+  #key='';#config={mode:'unconfigured'};#configured=false;
+  configure(options={}){
+    // Failed edits revoke the previous credentials; only an explicit, valid mock
+    // configuration may enable the local demo.
+    this.#key='';this.#config={mode:'unconfigured'};this.#configured=false;
+    const {mode,endpoint='',model='',key='',trusted=false}=options || {};
+    if(mode==='mock'){this.#config={mode};this.#configured=true;return;}
+    if(mode!=='direct' && mode!=='backend')throw new Error('不支持的 provider 模式');
+    this.#config={mode};
+    if(typeof endpoint!=='string' || typeof model!=='string' || typeof key!=='string')throw new Error('供应商配置无效');
+    const credential=key.trim(),name=model.trim();
+    if(trusted!==true || mode==='direct'&&(!credential||!name) || model.length>200 || /[\x00-\x1f]/.test(model) || credential&&(model.includes(credential)||endpoint.includes(credential)))throw new Error('需确认 endpoint 可信；BYOK 还需要模型与会话 key');
+    this.#config={mode,endpoint:validateEndpoint(endpoint),model:name};
+    this.#key=mode==='direct'?credential:'';this.#configured=true;
   }
-  clear(){this.#key='';this.#config={mode:'mock'};}
-  get summary(){return {...this.#config,hasKey:!!this.#key};}
+  clear(settings=this.#config){
+    const key=this.#key;
+    this.#key='';this.#config={mode:'unconfigured'};this.#configured=false;
+    // Retain only safe display settings, never readiness or an implicit mock.
+    // Invalid settings cannot prevent the credential from being cleared.
+    if(settings?.mode!=='direct' && settings?.mode!=='backend')return;
+    this.#config={mode:settings.mode};
+    const {endpoint='',model=''}=settings;
+    if(typeof endpoint!=='string' || typeof model!=='string' || model.length>200 || /[\x00-\x1f]/.test(model) || key&&(model.includes(key)||endpoint.includes(key)))return;
+    try{this.#config={mode:settings.mode,endpoint:endpoint?validateEndpoint(endpoint):'',model:model.trim()};}catch{}
+  }
+  get summary(){return {...this.#config,hasKey:!!this.#key,configured:this.#configured};}
   async stream(messages,{signal,onText=()=>{}}={}){
     if(signal?.aborted)throw abortError();
+    if(!this.#configured)throw new Error('会话尚未配置，请检查设置并重新应用');
     if(this.#config.mode==='mock'){
       let text='';for(const part of ['这是本地 mock 回复。','模型动作与表情由独立配置映射，','没有向外部服务发送信息。']){
         await new Promise((resolve,reject)=>{const finish=()=>{signal?.removeEventListener('abort',cancel);resolve();};const timer=setTimeout(finish,100);const cancel=()=>{clearTimeout(timer);signal?.removeEventListener('abort',cancel);reject(abortError());};signal?.addEventListener('abort',cancel,{once:true});});
@@ -61,10 +79,10 @@ export class Conversation {
       }
       emit('',true);return output;
     }catch(error){
-      if(signal?.aborted || error.name==='AbortError')throw abortError();
+      if(signal?.aborted || error?.name==='AbortError')throw abortError();
       if(error instanceof TypeError)throw new Error('无法直连供应商：检查 endpoint、网络和 CORS；工作台不会使用公共代理');
       // Never surface arbitrary provider/fetch errors that could include credentials or URLs.
-      if(/^供应商 |^需要 |^SSE |^回复/.test(error.message))throw new Error(redact(error.message));
+      if(/^(供应商 HTTP \d{3}|供应商 SSE JSON 无效|供应商返回错误事件|供应商流提前结束，缺少 \[DONE\]|需要 text\/event-stream 响应|SSE 数据超限|回复超出会话长度上限)$/.test(error?.message))throw new Error(redact(error.message));
       throw new Error('供应商连接失败');
     }finally{try{await reader?.cancel();}catch{}reader?.releaseLock();}
   }
