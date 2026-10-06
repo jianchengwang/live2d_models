@@ -21,11 +21,11 @@ function renderModels(){const query=$('search-model').value.trim().toLowerCase()
 function options(id,items,label){const select=$(id);select.replaceChildren();for(const [index,item] of items.entries()){const o=document.createElement('option');o.value=index;o.textContent=label(item);select.append(o);}select.disabled=!items.length;}
 function capabilities(){const caps=widget.viewer.listCapabilities();options('motion',caps.motions,m=>(m.group||'默认动作')+' / '+m.index);options('expression',caps.expressions,e=>e.name);$('play-motion').disabled=!caps.motions.length;$('play-expression').disabled=!caps.expressions.length;say('capabilities',`${caps.motions.length} 动作 · ${caps.expressions.length} 表情`);say('voice-note',caps.lipSyncIds.length?'模型已找到口型参数。系统朗读口型按发音事件近似；音频 TTS 按波形驱动。':'当前模型未发现口型参数，仍可朗读。语音与麦克风识别依浏览器而定。');}
 async function choose(model){
- const attempt=++selectedSequence;current=model;renderModels();say('selected-model','已选 · '+model.name);say('preview-title',model.name+'，来到你的网页。');say('preview-status','正在加载角色…');say('model-license',model.license?.note||'模型使用范围以原声明和你的权限为准；不自动捆绑仓库资源。');
+ const attempt=++selectedSequence;current=model;$('play-motion').disabled=true;$('play-expression').disabled=true;say('capabilities','载入后显示可用动作与表情');$('preview-diagnostics').hidden=true;say('preview-diagnostic-list','');renderModels();say('selected-model','已选 · '+model.name);say('preview-title',model.name+'，来到你的网页。');say('preview-status','正在加载角色…');say('model-license',model.license?.note||'模型使用范围以原声明和你的权限为准；不自动捆绑仓库资源。');
  try{
   if(!widget){widget=await createLive2DWidget({...settings(),container:$('scene'),manifest:model});await widget.ready;}
   else{refresh();await widget.setModel(model);}
-  if(attempt!==selectedSequence)return;if(!widget.viewer.ready)throw new Error('角色未加载，请检查入口、Core 版本或资源 CORS');capabilities();say('preview-status','默认完整角色适配 · 点开角色或“预览聊天”体验嵌入效果');
+  if(attempt!==selectedSequence)return;if(!widget.viewer.ready)throw new Error(widget.viewer.lastError||'角色未加载，请检查入口、Core 版本或资源 CORS');capabilities();const notes=widget.viewer.diagnostics||[];if(notes.length){$('preview-diagnostics').hidden=false;say('preview-diagnostic-list',notes.join('\n'));}say('preview-status',notes.length?`角色已加载；${notes.length} 项兼容处理，请查看加载诊断`:'默认完整角色适配 · 点开角色或“预览聊天”体验嵌入效果');
  }catch(e){if(e.name!=='AbortError'&&attempt===selectedSequence)say('preview-status',e.message);}updateCode();
 }
 $('search-model').oninput=renderModels;

@@ -27,12 +27,12 @@ export class Live2DViewer extends EventTarget {
     this.pending?.cleanup(); this.pending?.reject(reason);this.ready=false; this.pending = null;
     this.command('dispose');this.frame?.remove(); this.frame = null;
   }
-  load(model, {signal, timeoutMs = 20000} = {}) {
+  load(model, {signal, timeoutMs = 60000} = {}) {
     if (this.disposed) return Promise.reject(new Error('Viewer destroyed'));
-    clearTimeout(this.resizeTimer);this.stopFrame(); this.model = model;
+    clearTimeout(this.resizeTimer);this.stopFrame(); this.model = model;this.lastError=null;
     if (signal?.aborted) return Promise.reject(signal.reason || new DOMException('Aborted','AbortError'));
     if (model.format !== 'moc3') return Promise.reject(new Error('首轮预览仅支持 moc3；旧 moc 保留索引'));
-    if (!model.validation?.referencesComplete) return Promise.reject(new Error('模型依赖不完整，请查看诊断；旧包保持原样'));
+    if (!model.validation?.referencesComplete && (model.localImport || !model.files?.some(f=>f.kind==='moc') || !model.files?.some(f=>f.kind==='texture'))) return Promise.reject(new Error('模型依赖不完整，请查看诊断；旧包保持原样'));
     const entry = new URL(model.entryUrl, location.href);
     const assetPath=new URL('../assets/model/',import.meta.url).pathname;
     const loopback=url=>['localhost','127.0.0.1','[::1]'].includes(url.hostname);
@@ -49,7 +49,7 @@ export class Live2DViewer extends EventTarget {
     if(this.options.embedded){
       const base=new URL('./',import.meta.url),runtime=new URL(this.options.runtimeBase||'../',base);
       const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      const policy=`default-src 'none'; script-src 'self' ${base.origin} ${runtime.origin} 'wasm-unsafe-eval'; style-src 'self' ${base.origin}; img-src 'self' https: blob: data:; connect-src 'self' ${base.origin} ${runtime.origin} ${entry.origin} https: blob:; object-src 'none'; base-uri 'none'; form-action 'none'`;
+      const policy=`default-src 'none'; script-src 'self' ${base.origin} ${runtime.origin} https://cubism.live2d.com 'wasm-unsafe-eval'; style-src 'self' ${base.origin}; img-src 'self' https: blob: data:; connect-src 'self' ${base.origin} ${runtime.origin} ${entry.origin} https: blob:; object-src 'none'; base-uri 'none'; form-action 'none'`;
       frame.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${esc(policy)}"><meta name="referrer" content="no-referrer"><link rel="stylesheet" href="${esc(new URL('frame.css',base))}"></head><body data-token="${esc(this.token)}" data-parent-origin="${esc(location.origin)}" data-runtime-base="${esc(runtime.href)}"><div id="canvas"></div><script type="module" src="${esc(new URL('frame.js',base))}"></script></body></html>`;
     }else frame.src=frameURL.href;
     this.frame = frame;
@@ -57,7 +57,7 @@ export class Live2DViewer extends EventTarget {
       const abort = () => this.fail(signal.reason || new DOMException('Aborted','AbortError'));
       this.pending = {resolve, reject, cleanup: () => signal?.removeEventListener('abort', abort)};
       signal?.addEventListener('abort', abort, {once:true});
-      this.timer = setTimeout(() => this.fail(new Error('Core / 模型加载超时；可能不兼容当前旧 Core')), timeoutMs);
+      this.timer = setTimeout(() => this.fail(new Error('模型加载超时；请检查资源网络、运行时地址和 CORS 后重试')), timeoutMs);
     });
     this.container.replaceChildren(frame); this.emit('loading', {model});
     return promise;
@@ -68,11 +68,11 @@ export class Live2DViewer extends EventTarget {
     if (type === 'frame-ready') this.command('load', {model:this.model,...this.dimensions(),view:this.view});
     else if (type === 'loaded') {
       clearTimeout(this.timer); this.pending?.cleanup(); this.pending?.resolve(detail); this.pending = null;
-      this.unavailableMotions=detail.unavailableMotions || [];this.lipSyncIds=detail.lipSyncIds||this.model.lipSyncIds||[];this.ready=true;this.emit(type, detail); if (this.paused || document.hidden) this.pause();
+      this.unavailableMotions=detail.unavailableMotions || [];this.unavailableExpressions=detail.unavailableExpressions||[];this.diagnostics=detail.diagnostics||[];this.lipSyncIds=detail.lipSyncIds||this.model.lipSyncIds||[];this.ready=true;this.emit(type, detail); if (this.paused || document.hidden) this.pause();
     } else if (type === 'error') this.fail(new Error(detail.message));
     else if (['hit','motion-start','expression-start','action-error','context-lost','context-restored','paused','resumed'].includes(type)) this.emit(type, detail);
   }
-  fail(error) { this.stopFrame(error); this.emit('error', {message:error.message}); }
+  fail(error) { this.lastError=error.message;this.stopFrame(error); this.emit('error', {message:error.message}); }
   command(command, payload = {}) { this.frame?.contentWindow?.postMessage({token:this.token, command, payload}, location.origin); }
   playMotion({group, index, priority = 2}) {
     if(!this.ready)throw new Error('模型预览未就绪');
@@ -83,10 +83,10 @@ export class Live2DViewer extends EventTarget {
   }
   setExpression(name) {
     if(!this.ready)throw new Error('模型预览未就绪');
-    if (!this.model?.expressions?.some(e => e.name === name)) throw new Error('此模型没有该表情');
+    if (this.unavailableExpressions?.includes(name) || !this.model?.expressions?.some(e => e.name === name)) throw new Error('此模型没有该表情');
     this.command('expression', {name});
   }
-  listCapabilities() { return {motions:(this.model?.motions || []).filter(m=>!this.unavailableMotions?.some(x=>x.group===m.group && x.index===m.index)), expressions:this.model?.expressions || [], lipSyncIds:this.lipSyncIds || []}; }
+  listCapabilities() { return {motions:(this.model?.motions || []).filter(m=>!this.unavailableMotions?.some(x=>x.group===m.group && x.index===m.index)), expressions:(this.model?.expressions || []).filter(e=>!this.unavailableExpressions?.includes(e.name)), lipSyncIds:this.lipSyncIds || []}; }
   pause() { this.paused = true; this.command('pause'); }
   resume() { this.paused = false; this.command('resume'); }
   destroy() {

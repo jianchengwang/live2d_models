@@ -210,11 +210,29 @@ def validate_zip(payload):
         reachable = {entries[0]} | {f['path'] for f in model['files']}
         return model, {p: data[p] for p in reachable}
 
-def verify_baseline(root, baseline):
+def validate_homepage_update(baseline, homepage_update):
+    """Allow one recorded homepage revision without rebasing any frozen bytes."""
+    original = next((f for f in baseline['files'] if f['path'] == 'index.html'), None)
+    if (homepage_update.get('schemaVersion') != 1 or
+            homepage_update.get('path') != 'index.html' or original is None or
+            homepage_update.get('baselineSourceCommit') != baseline.get('sourceCommit') or
+            homepage_update.get('originalSha256') != original['sha256'] or
+            homepage_update.get('originalBytes') != original['bytes'] or
+            not re.fullmatch(r'[0-9a-f]{64}', str(homepage_update.get('sha256', ''))) or
+            type(homepage_update.get('bytes')) is not int or homepage_update['bytes'] <= 0 or
+            not homepage_update.get('reason')):
+        raise ValueError('无效的首页入口修订记录；冻结基线不得重建')
+
+def verify_baseline(root, baseline, homepage_update=None):
+    if homepage_update is not None:
+        validate_homepage_update(baseline, homepage_update)
     mismatches = []
     for f in baseline['files']:
         p = Path(root) / f['path']
-        if not p.is_file() or p.is_symlink() or p.stat().st_size != f['bytes'] or sha(p.read_bytes()) != f['sha256']:
+        accepted = {(f['bytes'], f['sha256'])}
+        if homepage_update is not None and f['path'] == 'index.html':
+            accepted.add((homepage_update['bytes'], homepage_update['sha256']))
+        if not p.is_file() or p.is_symlink() or (p.stat().st_size, sha(p.read_bytes())) not in accepted:
             mismatches.append(f['path'])
     return mismatches
 
@@ -226,7 +244,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.verify:
         baseline = json.loads((ROOT/'catalog/frozen-files.json').read_text())
-        failed = verify_baseline(args.root, baseline)
+        homepage_update = json.loads((ROOT/'catalog/homepage-entry.json').read_text())
+        failed = verify_baseline(args.root, baseline, homepage_update)
         print(json.dumps({'checked': len(baseline['files']), 'changed': failed}, ensure_ascii=False))
         raise SystemExit(bool(failed))
     (ROOT/'catalog/models.json').write_text(json.dumps(build_catalog(), ensure_ascii=False, indent=2)+'\n')

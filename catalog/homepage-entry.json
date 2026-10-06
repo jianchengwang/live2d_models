@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "path": "index.html",
+  "baselineSourceCommit": "9d321567dfa95dd64e7dadd9f40228f8f0cd31b5",
+  "originalSha256": "b80887e63cd47594e33006ecb4591fb0dfc094634c4c4a27d1d4556f4df8df8a",
+  "originalBytes": 8089,
+  "sha256": "39b49afc86163a02b64effab2c76f876783a66e5579cc13614a69cf359933a14",
+  "bytes": 8693,
+  "reason": "User-requested visible homepage link to the same deployment base at ./studio/. Existing model viewer code and asset URLs are unchanged."
+}

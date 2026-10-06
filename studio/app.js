@@ -63,7 +63,7 @@ async function selectModel(model) {
   if(!model.issues.length){const li=document.createElement('li');label(li,'声明依赖完整；不代表视觉和公开许可已通过');$('issues').append(li);}
   label($('file-summary'),` · ${model.files.length} 项`);$('file-list').replaceChildren();
   for(const file of model.files){const row=document.createElement('div');row.className='file-row';label(row,`${file.path} · ${formatBytes(file.bytes)}`);const hash=document.createElement('code');label(hash,file.sha256);row.append(hash);$('file-list').append(row);}
-  $('preview-status').classList.remove('hidden');label($('preview-status'),'加载本地 Core 与模型依赖…');
+  $('preview-status').classList.remove('hidden');label($('preview-status'),'加载 Core 与模型依赖…');
   try {
     if(model.previewAvailable===false)throw new Error('此构建仅含目录元信息；未再分发旧模型或 Core');
     const result = await viewer.load({...model,previewCompatibility:$('preview-compatibility').checked});
@@ -79,12 +79,16 @@ viewer.addEventListener('loaded',e=>{
   coreAccepted.add(current.id);$('preview-status').classList.add('hidden');
   current.unavailableMotions=e.detail.unavailableMotions || [];
   $('runtime-issues').replaceChildren();const diagnostics=[...new Set(e.detail.diagnostics || [])];
-  $('runtime-diagnostics').classList.toggle('hidden',!diagnostics.length);$('runtime-summary').textContent=`动作兼容诊断 · ${diagnostics.length} 项`;
+  $('runtime-diagnostics').classList.toggle('hidden',!diagnostics.length);$('runtime-summary').textContent=`加载兼容诊断 · ${diagnostics.length} 项`;
   for(const item of diagnostics){const li=document.createElement('li');li.textContent=item;$('runtime-issues').append(li);}
   $('motion-count').textContent=viewer.listCapabilities().motions.length;
+  $('expression-count').textContent=viewer.listCapabilities().expressions.length;
+  const unavailableExpressions=e.detail.unavailableExpressions||[];
+  for(const option of $('expression').options){const expression=current.expressions[Number(option.value)];option.disabled=unavailableExpressions.includes(expression?.name);}
+  const availableExpression=[...$('expression').options].find(o=>!o.disabled);if(availableExpression)$('expression').value=availableExpression.value;
   for(const option of $('motion').options){const m=current.motions[Number(option.value)];option.disabled=current.unavailableMotions.some(x=>x.group===m?.group && x.index===m?.index);}
   const available=[...$('motion').options].find(o=>!o.disabled);if(available)$('motion').value=available.value;
-  $('play-motion').disabled=!viewer.listCapabilities().motions.length;$('play-expression').disabled=!current.expressions.length;
+  $('play-motion').disabled=!viewer.listCapabilities().motions.length;$('play-expression').disabled=!viewer.listCapabilities().expressions.length;
   label($('core-note'),`Core 已接受 · ${e.detail.parameters.length} 个真实参数 · 视觉效果需人工确认`);
   label($('action-status'),viewer.listCapabilities().motions.length?'模型就绪，可选择准确动作试播':'Core 已加载；此模型没有可安全试播的动作');renderPipeline();
 });

@@ -2,9 +2,9 @@ name: Static Studio checks
 on:
   push:
     branches: [main]
-    paths: ['studio/**', 'v2/**', 'catalog/**', 'tools/build.py', 'release-approval.json', '.github/workflows/studio-ci.yml']
+    paths: ['index.html', 'studio/**', 'v2/**', 'catalog/**', 'tools/build.py', 'release-approval.json', '.github/workflows/studio-ci.yml']
   pull_request:
-    paths: ['studio/**', 'v2/**', 'catalog/**', 'tools/build.py', '.github/workflows/studio-ci.yml']
+    paths: ['index.html', 'studio/**', 'v2/**', 'catalog/**', 'tools/build.py', '.github/workflows/studio-ci.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,7 +20,7 @@ jobs:
         run: |
           node --test studio/tests/*.test.mjs
           python3 -B -m unittest discover -s studio/tests -p 'test_*.py' -v
-      - name: Verify frozen site and build code addition
+      - name: Verify frozen site and build Studio with recorded homepage entry
         run: python3 -B tools/build.py --base /live2d_models/ --site-addition --source .
       - uses: actions/upload-artifact@v4
         with:
@@ -28,5 +28,6 @@ jobs:
           path: dist
           include-hidden-files: true
   # Existing branch-based GitHub Pages performs the actual site build/deploy.
-  # This artifact contains ONLY additions and must never replace the whole site.
+  # This artifact contains Studio additions and the recorded homepage update.
+  # It must never replace the whole site; all existing model assets stay in place.
   # No Pages-source, environment, Actions-permission or OIDC setting is changed.

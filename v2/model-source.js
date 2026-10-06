@@ -24,9 +24,11 @@ export async function loadModelSource(value,{base=globalThis.location?.href,sign
     const url=publicUrl(ref,entryUrl);if(!seen.has(url)){files.push({kind,path:decodeURIComponent(new URL(url).pathname),ref,url});seen.add(url);}return url;
   };
   add('moc',fr.Moc);fr.Textures.forEach(ref=>add('texture',ref));
-  for(const key of ['Physics','Pose','DisplayInfo','UserData'])if(fr[key])add(key.toLowerCase(),fr[key]);
-  for(const [group,items] of Object.entries(fr.Motions||{})){if(!Array.isArray(items))throw new Error('无效动作组');items.forEach((m,index)=>{add('motion',m.File);if(m.Sound)add('sound',m.Sound);motions.push({group,index,file:m.File,label:m.File.split('/').at(-1)});});}
-  for(const e of fr.Expressions||[]){if(typeof e.Name!=='string')throw new Error('无效表情');add('expression',e.File);expressions.push({name:e.Name,file:e.File});}
+  // Optional unsafe/missing references are never fetched; the renderer reports and skips them.
+  const optional=(kind,ref)=>{try{return add(kind,ref);}catch{return null;}};
+  for(const key of ['Physics','Pose','DisplayInfo','UserData'])if(fr[key])optional(key.toLowerCase(),fr[key]);
+  for(const [group,items] of Object.entries(fr.Motions||{})){if(!Array.isArray(items))throw new Error('无效动作组');items.forEach((m,index)=>{optional('motion',m.File);if(m.Sound)optional('sound',m.Sound);motions.push({group,index,file:m.File,label:String(m.File).split('/').at(-1)});});}
+  for(const e of fr.Expressions||[]){if(typeof e.Name!=='string')throw new Error('无效表情');optional('expression',e.File);expressions.push({name:e.Name,file:e.File});}
   if(files.length>1000)throw new Error('模型依赖文件过多');
   const ids=name=>(config.Groups||[]).filter(g=>g.Name===name).flatMap(g=>g.Ids||[]).filter(id=>typeof id==='string');
   return {id:entryUrl,name:decodeURIComponent(new URL(entryUrl).pathname.split('/').at(-1)).replace('.model3.json',''),format:'moc3',entryUrl,files,motions,expressions,lipSyncIds:ids('LipSync'),eyeBlinkIds:ids('EyeBlink'),validation:{referencesComplete:true},localImport:false,previewCompatibility:true};

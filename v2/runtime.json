@@ -1,1 +1,7 @@
-{"available": true, "developmentOnly": false, "existingRuntimeOnly": true}
+{
+  "available": true,
+  "developmentOnly": false,
+  "existingRuntimeOnly": false,
+  "modernCoreURL": "https://cubism.live2d.com/sdk-web/core/05/live2dcubismcore.min.js",
+  "modernCoreIntegrity": "sha384-MeKqhuhBpq1ZqqshjOzqDOQJ/00BuDVdnNeYgPKul9hmgROzmT17WkmUeFJ9Jlrb"
+}

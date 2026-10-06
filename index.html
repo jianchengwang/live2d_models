@@ -11,6 +11,25 @@
       margin: 0;
     }
 
+    .studio-entry {
+      display: inline-block;
+      margin: 20px 12px 4px;
+      padding: 14px 26px;
+      border: 2px solid #fff;
+      border-radius: 8px;
+      background: #9cebdc;
+      color: #14213d;
+      font: 700 24px/1.4 system-ui, sans-serif;
+      text-decoration: none;
+    }
+
+    .studio-entry:hover,
+    .studio-entry:focus-visible {
+      background: #c9fff3;
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+    }
+
     .form-control {
       width: 300px;
       height: calc(1.5em + .75rem + 2px);
@@ -90,6 +109,9 @@
 </head>
 
 <body style="text-align: center;background-color: rgb(73, 74, 90); color: white; overflow: auto;">
+  <nav aria-label="Studio navigation">
+    <a class="studio-entry" href="./studio/">打开 Live2D Studio 模型工作台 →</a>
+  </nav>
   <div>
     <div align="center" style="color: white;margin-bottom: 10px;">
       <h1><a style="color: white;" href="https://github.com/jianchengwang/live2d_models">Live2D V3 Viewer</a></h1>

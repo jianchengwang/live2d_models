@@ -1,4 +1,4 @@
-import {prepareMotion} from './motion-validation.js';
+import {prepareModelConfig,declaredResource,mocVersion,assertCoreVersion,selectCoreURL} from './model-compatibility.js';
 import {containTransform,drawableBounds} from './fit.js';
 import {responseBytes} from './model-source.js';
 import {textureDimensions} from './importer.js';
@@ -8,7 +8,7 @@ const hostOrigin=boot.parentOrigin||location.origin;
 const send = (type, detail = {}) => parent.postMessage({token,type,detail}, hostOrigin);
 let view={zoom:1,x:0,y:0},bounds,lip=0;
 let fetchedBytes=0,decodedTextureBytes=0;const textureURLs=new Map();
-let unsupportedGroups=new Set();
+let unsupportedGroups=new Set(),unavailableExpressions=[];
 let viewer, manifest, config, paused = false, started = false, failed = false;
 const abort = new AbortController();
 const nativeFetch = window.fetch.bind(window);
@@ -22,7 +22,7 @@ window.requestAnimationFrame = cb => { const id = ++frameId; queued.set(id,cb); 
 window.cancelAnimationFrame = id => { nativeCancel(active.get(id)); active.delete(id); queued.delete(id); };
 function pause() { paused = true; for (const id of active.values()) nativeCancel(id); active.clear(); send('paused'); }
 function resume() { if (!paused) return; paused = false; for (const id of queued.keys()) schedule(id); send('resumed'); }
-function fail(error) { if (failed) return; failed = true; pause(); abort.abort(); send('error',{message:/createModel/.test(error?.message || '')?'当前旧 Core 无法接受此 moc3，可能版本不兼容或二进制无效；未自动替换 Core':error?.message || String(error)}); }
+function fail(error) { if (failed) return; failed = true; pause(); abort.abort(); send('error',{message:/createModel/.test(error?.message || '')?'Core 无法接受此 moc3；请查看模型版本诊断，或检查二进制是否损坏':error?.message || String(error)}); }
 addEventListener('error', e => fail(e.error || new Error(e.message)));
 addEventListener('unhandledrejection', e => fail(e.reason));
 
@@ -46,36 +46,38 @@ function authorized(raw) {
   return url;
 }
 const cache = new Map(),motionBodies=new Map();
+function resource(url){if(!cache.has(url))cache.set(url,readResource(url));return cache.get(url);}
+async function resourceJSON(file){const item=await resource(file.url);try{return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(item.buffer));}catch{throw new Error(`JSON 无效：${file.path}`);}}
 window.fetch = async raw => {
   try {
     const url = authorized(typeof raw === 'string' || raw instanceof URL ? raw : raw.url);
     if(motionBodies.has(url))return new Response(JSON.stringify(motionBodies.get(url)),{headers:{'Content-Type':'application/json'}});
     if (url === manifest.entryUrl) return new Response(JSON.stringify(config), {headers:{'Content-Type':'application/json'}});
-    if (!cache.has(url)) cache.set(url, readResource(url));
-    const item = await cache.get(url); return new Response(item.buffer.slice(0),{headers:{'Content-Type':item.type || 'application/octet-stream'}});
+    const item = await resource(url); return new Response(item.buffer.slice(0),{headers:{'Content-Type':item.type || 'application/octet-stream'}});
   } catch(error) { fail(error); throw error; }
 };
 // The frozen renderer loads textures via Image, not fetch. Validate that transport too.
 const imageSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
-async function readResource(url){const response=await nativeFetch(url,{signal:abort.signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'}),bytes=await responseBytes(response);fetchedBytes+=bytes.length;if(fetchedBytes>256*1024*1024)throw new Error('模型依赖总读取超过 256 MiB');return {buffer:bytes.buffer,type:response.headers.get('Content-Type')};}
+async function readResource(url){try{if(fetchedBytes>=256*1024*1024)throw new Error('模型依赖总读取超过 256 MiB');const response=await nativeFetch(url,{signal:abort.signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'}),bytes=await responseBytes(response);fetchedBytes+=bytes.length;if(fetchedBytes>256*1024*1024)throw new Error('模型依赖总读取超过 256 MiB');return {buffer:bytes.buffer,type:response.headers.get('Content-Type')};}catch(error){if(error.name==='AbortError')throw error;const file=manifest.files.find(f=>f.url===url);throw new Error(`${file?.path||'模型资源'}：${error.message}${error instanceof TypeError?'（请检查网络和资源服务器 CORS）':''}`);}}
 Object.defineProperty(HTMLImageElement.prototype, 'src', {
   get:imageSrc.get, configurable:true,
   set(value) {
     try { const url = authorized(value); this.addEventListener('error', () => fail(new Error('纹理加载失败')), {once:true});
-      if(!textureURLs.has(url))textureURLs.set(url,readResource(url).then(item=>{const [w,h]=textureDimensions(new Uint8Array(item.buffer));decodedTextureBytes+=w*h*4;if(!w||!h||w>8192||h>8192||decodedTextureBytes>256*1024*1024)throw new Error('纹理解码预算超限');const blob=URL.createObjectURL(new Blob([item.buffer],{type:item.type||'image/png'}));return blob;}));
+      if(!textureURLs.has(url))textureURLs.set(url,resource(url).then(item=>{const [w,h]=textureDimensions(new Uint8Array(item.buffer));decodedTextureBytes+=w*h*4;if(!w||!h||w>8192||h>8192||decodedTextureBytes>256*1024*1024)throw new Error(`纹理 ${w} × ${h} 超过当前 8192 边长 / 256 MiB 解码预算；请使用较低分辨率的纹理包，原资源未改`);const blob=URL.createObjectURL(new Blob([item.buffer],{type:item.type||'image/png'}));return blob;}));
       textureURLs.get(url).then(blob=>{if(!abort.signal.aborted)imageSrc.set.call(this,blob);}).catch(fail);
     }
     catch(error) { fail(error); }
   }
 });
 
-async function loadRuntime(){
+async function loadRuntime(requiredVersion){
   const response=await nativeFetch(new URL('./runtime.json',import.meta.url),{signal:abort.signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});
   if(!response.ok)throw new Error('预览运行时配置未就绪');
   const runtime=JSON.parse(new TextDecoder().decode(await responseBytes(response,8192)));if(runtime.available!==true)throw new Error('当前 artifact 未分发 Core；需先核实预览应用发布许可');
   const runtimeRoot=boot.runtimeBase?new URL(boot.runtimeBase):new URL('../',import.meta.url);
-  for(const path of ['assets/js/lib/live2dcubismcore.min.js','assets/js/live2dv3.js']){
-    await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL(path,runtimeRoot).href;script.onload=resolve;script.onerror=()=>reject(new Error('预览运行时不可用；检查资源地址与页面 CSP'));document.head.append(script);});
+  const coreURL=selectCoreURL(runtime,runtimeRoot,requiredVersion);
+  for(const path of [coreURL,'assets/js/live2dv3.js']){
+    await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL(path,runtimeRoot).href;if(path===coreURL&&requiredVersion>3&&runtime.modernCoreIntegrity){script.integrity=runtime.modernCoreIntegrity;script.crossOrigin='anonymous';}script.onload=resolve;script.onerror=()=>reject(new Error(`预览运行时不可用：${script.src}；检查网络、CSP 和版本完整性`));document.head.append(script);});
   }
 }
 async function load({model,dpr,width=innerWidth,height=innerHeight,view:requestedView}) {
@@ -85,21 +87,35 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
   const response = await nativeFetch(model.entryUrl,{signal:abort.signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});
   if (!response.ok || response.redirected) throw new Error('模型配置读取失败');
   config = JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await responseBytes(response,4*1024*1024)));
-  await loadRuntime();
+  // Read the actual binary before choosing a runtime; metadata alone is not Core acceptance.
+  const mocFile=declaredResource(config.FileReferences?.Moc,manifest);
+  const mocBytes=new Uint8Array((await resource(mocFile.url)).buffer),version=mocVersion(mocBytes);
+  await loadRuntime(version);
   if(typeof Live2DCubismCore==='undefined' || typeof L2dViewer==='undefined')throw new Error('预览运行时未包含在当前构建；需先核实 Core 发布许可');
   for (let i=0;i<100;i++) {
     try { if (Live2DCubismCore.Version.csmGetVersion()) break; } catch {}
     if (i === 99) throw new Error('本地 Core 初始化失败');
     await new Promise(resolve => setTimeout(resolve,20));
   }
-  unsupportedGroups=new Set();const diagnostics=[];
-  for(const motion of manifest.motions){
-    try{const file=manifest.files.find(f=>f.kind==='motion' && (f.path.endsWith('/'+motion.file) || f.path===motion.file));if(!file)throw new Error('动作文件未声明');const response=await window.fetch(file.url);const prepared=prepareMotion(await response.json(),{compatibility:!!manifest.previewCompatibility});if(prepared.normalized){motionBodies.set(new URL(file.url,location.href).href,prepared.data);diagnostics.push(`${motion.file}: 当前预览内已校正计数；原文件及 hash 保持不变`);}}
-    catch(error){unsupportedGroups.add(motion.group);diagnostics.push(`${motion.file}: ${error.message}`);}
+  const runtimeInfo=assertCoreVersion(version,Live2DCubismCore);
+  // The old renderer replaces the document on WebGL failure. Detect it first,
+  // so a browser/GPU limitation cannot be misreported as a bad model or Core.
+  const probe=document.createElement('canvas'),gl=probe.getContext('webgl')||probe.getContext('experimental-webgl');
+  if(!gl)throw new Error('当前浏览器无法创建 WebGL 上下文；请检查硬件加速或换支持 WebGL 的浏览器，此错误与模型文件无关');
+  const maxTextureSize=gl.getParameter(gl.MAX_TEXTURE_SIZE);
+  gl.getExtension('WEBGL_lose_context')?.loseContext();
+  const prepared=await prepareModelConfig(config,manifest,resourceJSON);
+  config=prepared.config;
+  const {diagnostics,unavailableMotions}=prepared;
+  unavailableExpressions=prepared.unavailableExpressions;
+  unsupportedGroups=new Set(unavailableMotions.map(m=>m.group));
+  for(const [url,body] of prepared.motionBodies)motionBodies.set(url,body);
+  let textureBudget=0;
+  for(const file of prepared.textures){
+    const item=await resource(file.url),[w,h]=textureDimensions(new Uint8Array(item.buffer));textureBudget+=w*h*4;
+    if(!w||!h||w>Math.min(8192,maxTextureSize)||h>Math.min(8192,maxTextureSize)||textureBudget>256*1024*1024)
+      throw new Error(`纹理 ${file.path} 为 ${w} × ${h}；当前已累计 ${Math.round(textureBudget/1024/1024)} MiB；限制为 ${Math.min(8192,maxTextureSize)} 边长 / 总计 256 MiB 解码预算。请使用较低分辨率纹理，原资源未改`);
   }
-  config=structuredClone(config);
-  for(const group of unsupportedGroups)delete config.FileReferences.Motions[group];
-  const unavailableMotions=manifest.motions.filter(m=>unsupportedGroups.has(m.group));
   // Absolute URLs remain in the allowlist; virtual paths are mapped only inside this frame.
   viewer = new L2dViewer({el:document.getElementById('canvas'),modelHomePath:virtualRoot.href,model:'model',
     width:Math.max(1,Math.round(width*dpr)),height:Math.max(1,Math.round(height*dpr)),autoMotion:false,
@@ -116,7 +132,7 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
       const lipIndices=lipIds.map(id=>parameters.findIndex(p=>p.id===id));
       const update=model.update.bind(model);model.update=()=>{update();if(lipIndices.length){for(const i of lipIndices)core.setParameterValueByIndex(i,parameters[i].minimum+lip*(parameters[i].maximum-parameters[i].minimum));core.update();}};
       const draw=model.draw.bind(model);model.draw=matrix=>{applyView();draw(matrix);};applyView();
-      send('loaded',{parameters,bounds,lipSyncIds:lipIds,unavailableMotions,diagnostics,coreAcceptance:'accepted',note:'模型已加载；默认完整角色适配'});
+      send('loaded',{parameters,bounds,lipSyncIds:lipIds,unavailableMotions,unavailableExpressions,diagnostics,runtimeInfo,coreAcceptance:'accepted',note:'模型已加载；默认完整角色适配'});
     }});
   window._onTap = () => send('hit'); // Avoid the frozen constructor's _onTab typo.
   const canvas = document.querySelector('canvas');if(!canvas)throw new Error('renderer 未创建 canvas');
@@ -143,7 +159,7 @@ addEventListener('message', async event => {
       if (handle === -1) throw new Error('动作被优先级阻止');
       send('motion-start',payload);
     } else if (command === 'expression') {
-      if (!manifest.expressions.some(e => e.name === payload.name)) throw new Error('无效表情');
+      if (unavailableExpressions.includes(payload.name) || !manifest.expressions.some(e => e.name === payload.name)) throw new Error('无效表情');
       viewer.getModel()?.setExpression(payload.name); send('expression-start',payload);
     }
   } catch(error) { if (command === 'load') fail(error); else send('action-error',{message:error.message}); }
