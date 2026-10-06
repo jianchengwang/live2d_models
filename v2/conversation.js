@@ -9,9 +9,9 @@ export class Conversation {
   #key='';#config={mode:'mock'};
   configure({mode='mock',endpoint='',model='',key='',trusted=false}){
     this.clear();key=key.trim();
-    if(mode==='direct'){
-      if(!trusted || !key.trim() || !model.trim() || model.length>200 || /[\x00-\x1f]/.test(model) || model.includes(key) || endpoint.includes(key))throw new Error('需确认 endpoint 可信并填写模型与 API key');
-      this.#config={mode,endpoint:validateEndpoint(endpoint),model:model.trim()};this.#key=key.trim();
+    if(mode==='direct'||mode==='backend'){
+      if(!trusted || mode==='direct'&&(!key.trim()||!model.trim()) || model.length>200 || /[\x00-\x1f]/.test(model) || key&&(model.includes(key)||endpoint.includes(key)))throw new Error('需确认 endpoint 可信；BYOK 还需要模型与会话 key');
+      this.#config={mode,endpoint:validateEndpoint(endpoint),model:model.trim()};this.#key=mode==='direct'?key.trim():'';
     }else if(mode!=='mock')throw new Error('不支持的 provider 模式');
   }
   clear(){this.#key='';this.#config={mode:'mock'};}
@@ -26,7 +26,7 @@ export class Conversation {
     }
     // Snapshot protects an in-flight request from a later configure/clear.
     const config=this.#config,key=this.#key;let reader,buffer='',pending='',output='',rawCount=0;
-    const redact=text=>text.split(key).join('[credential redacted]');
+    const redact=text=>key?text.split(key).join('[credential redacted]'):text;
     const emit=(text,final=false)=>{
       pending+=text;
       if(pending.length+output.length>100000)throw new Error('回复超出会话长度上限');
@@ -44,7 +44,7 @@ export class Conversation {
       const delta=frame.choices?.[0]?.delta?.content;if(typeof delta==='string')emit(delta);
     };
     try{
-      const response=await fetch(config.endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${key}`},body:JSON.stringify({model:config.model,messages:messages.map(m=>({role:m.role,content:m.content})),stream:true}),signal,redirect:'error',credentials:'omit',referrerPolicy:'no-referrer'});
+      const response=await fetch(config.endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(key?{Authorization:`Bearer ${key}`}:{})},body:JSON.stringify({model:config.model,messages:messages.map(m=>({role:m.role,content:m.content})),stream:true}),signal,redirect:'error',credentials:'omit',referrerPolicy:'no-referrer'});
       if(!response.ok)throw new Error(`供应商 HTTP ${response.status}`);
       if(!response.headers.get('content-type')?.includes('text/event-stream') || !response.body)throw new Error('需要 text/event-stream 响应');
       reader=response.body.getReader();const decode=new TextDecoder();let trailingCR=false;

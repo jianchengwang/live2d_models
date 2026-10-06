@@ -13,7 +13,7 @@ class BuildTests(unittest.TestCase):
  def test_subpath_csp_404_and_deployment_gate(self):
   b.build('/nested/repository/');fallback=(ROOT/'dist/404.html').read_text();self.assertIn('/nested/repository/studio/',fallback)
   html=(ROOT/'dist/studio/index.html').read_text();self.assertIn('Content-Security-Policy',html);self.assertNotIn('unsafe-inline',html)
-  self.assertIn('src="./app.js"',html);self.assertNotIn('/api/',(ROOT/'dist/studio/app.js').read_text())
+  self.assertIn('src="./generator.js"',html);self.assertNotIn('/api/',(ROOT/'dist/studio/generator.js').read_text())
   with self.assertRaises(ValueError):b.build('/live2d_models/',True,ROOT)
   with self.assertRaises(ValueError):b.build('/../bad/')
  def test_additive_build_preserves_source_and_excludes_frozen_bytes(self):
