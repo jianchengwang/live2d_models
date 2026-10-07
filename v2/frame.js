@@ -76,8 +76,8 @@ async function loadRuntime(requiredVersion){
   const runtime=JSON.parse(new TextDecoder().decode(await responseBytes(response,8192)));if(runtime.available!==true)throw new Error('当前 artifact 未分发 Core；需先核实预览应用发布许可');
   const runtimeRoot=boot.runtimeBase?new URL(boot.runtimeBase):new URL('../',import.meta.url);
   const coreURL=selectCoreURL(runtime,runtimeRoot,requiredVersion);
-  for(const path of [coreURL,'assets/js/live2dv3.js']){
-    await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL(path,runtimeRoot).href;if(path===coreURL&&requiredVersion>3&&runtime.modernCoreIntegrity){script.integrity=runtime.modernCoreIntegrity;script.crossOrigin='anonymous';}script.onload=resolve;script.onerror=()=>reject(new Error(`预览运行时不可用：${script.src}；检查网络、CSP 和版本完整性`));document.head.append(script);});
+  for(const path of (requiredVersion>5?[coreURL]:[coreURL,'assets/js/live2dv3.js'])){
+    await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=new URL(path,runtimeRoot).href;if(path===coreURL&&requiredVersion>3&&(requiredVersion>5?runtime.cubism53CoreIntegrity:runtime.modernCoreIntegrity)){script.integrity=requiredVersion>5?runtime.cubism53CoreIntegrity:runtime.modernCoreIntegrity;script.crossOrigin='anonymous';}script.onload=resolve;script.onerror=()=>reject(new Error(`预览运行时不可用：${script.src}；检查网络、CSP 和版本完整性`));document.head.append(script);});
   }
 }
 async function load({model,dpr,width=innerWidth,height=innerHeight,view:requestedView}) {
@@ -91,7 +91,7 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
   const mocFile=declaredResource(config.FileReferences?.Moc,manifest);
   const mocBytes=new Uint8Array((await resource(mocFile.url)).buffer),version=mocVersion(mocBytes);
   await loadRuntime(version);
-  if(typeof Live2DCubismCore==='undefined' || typeof L2dViewer==='undefined')throw new Error('预览运行时未包含在当前构建；需先核实 Core 发布许可');
+  if(typeof Live2DCubismCore==='undefined' || (version<=5&&typeof L2dViewer==='undefined'))throw new Error('预览运行时未包含在当前构建；需先核实 Core 发布许可');
   for (let i=0;i<100;i++) {
     try { if (Live2DCubismCore.Version.csmGetVersion()) break; } catch {}
     if (i === 99) throw new Error('本地 Core 初始化失败');
@@ -117,9 +117,7 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
       throw new Error(`纹理 ${file.path} 为 ${w} × ${h}；当前已累计 ${Math.round(textureBudget/1024/1024)} MiB；限制为 ${Math.min(8192,maxTextureSize)} 边长 / 总计 256 MiB 解码预算。请使用较低分辨率纹理，原资源未改`);
   }
   // Absolute URLs remain in the allowlist; virtual paths are mapped only inside this frame.
-  viewer = new L2dViewer({el:document.getElementById('canvas'),modelHomePath:virtualRoot.href,model:'model',
-    width:Math.max(1,Math.round(width*dpr)),height:Math.max(1,Math.round(height*dpr)),autoMotion:false,
-    _finishedLoadModel:() => {
+  const finishedLoad = () => {
       const model = viewer.getModel(), core = model._model, parameters = [];
       for (let i=0;i<Math.min(core.getParameterCount?.() || 0,256);i++) {
         const id = core.getParameterId?.(i) || core._parameterIds?.at?.(i);
@@ -132,8 +130,15 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
       const lipIndices=lipIds.map(id=>parameters.findIndex(p=>p.id===id));
       const update=model.update.bind(model);model.update=()=>{update();if(lipIndices.length){for(const i of lipIndices)core.setParameterValueByIndex(i,parameters[i].minimum+lip*(parameters[i].maximum-parameters[i].minimum));core.update();}};
       const draw=model.draw.bind(model);model.draw=matrix=>{applyView();draw(matrix);};applyView();
-      send('loaded',{parameters,bounds,lipSyncIds:lipIds,unavailableMotions,unavailableExpressions,diagnostics,runtimeInfo,coreAcceptance:'accepted',note:'模型已加载；默认完整角色适配'});
-    }});
+      send('loaded',{parameters,bounds,lipSyncIds:lipIds,unavailableMotions,unavailableExpressions,diagnostics,runtimeInfo,coreAcceptance:'accepted',renderer:version>5?'Cubism Web Framework 5-r.5':'existing renderer',note:'模型已加载；显示适配不代表参数已经绑定'});
+    };
+  if(version>5){
+    const {createCubism53Viewer}=await import('./cubism53-viewer.js');
+    viewer=await createCubism53Viewer({container:document.getElementById('canvas'),width:Math.max(1,Math.round(width*dpr)),height:Math.max(1,Math.round(height*dpr)),config,mocBytes,textureURLs:prepared.textures.map(file=>file.url),readJSON:async file=>motionBodies.has(file.url)?motionBodies.get(file.url):resourceJSON(file),resolveResource:ref=>declaredResource(ref,manifest),signal:abort.signal});
+    finishedLoad();viewer.start();
+  }else{
+    viewer=new L2dViewer({el:document.getElementById('canvas'),modelHomePath:virtualRoot.href,model:'model',width:Math.max(1,Math.round(width*dpr)),height:Math.max(1,Math.round(height*dpr)),autoMotion:false,_finishedLoadModel:finishedLoad});
+  }
   window._onTap = () => send('hit'); // Avoid the frozen constructor's _onTab typo.
   const canvas = document.querySelector('canvas');if(!canvas)throw new Error('renderer 未创建 canvas');
   canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); pause(); send('context-lost'); });
@@ -150,7 +155,7 @@ addEventListener('message', async event => {
     else if (command === 'pause') pause();
     else if (command === 'resume') resume();
     else if(command==='view'){view={...view,...payload};applyView();}
-    else if(command==='resize'){const c=document.querySelector('canvas');if(c){c.width=Math.max(1,Math.round(payload.width*payload.dpr));c.height=Math.max(1,Math.round(payload.height*payload.dpr));const gl=c.getContext('webgl')||c.getContext('experimental-webgl');gl?.viewport(0,0,c.width,c.height);applyView();}}
+    else if(command==='resize'){const c=document.querySelector('canvas');if(c){c.width=Math.max(1,Math.round(payload.width*payload.dpr));c.height=Math.max(1,Math.round(payload.height*payload.dpr));const gl=c.getContext('webgl2')||c.getContext('webgl')||c.getContext('experimental-webgl');gl?.viewport(0,0,c.width,c.height);applyView();}}
     else if(command==='lip-sync')lip=Math.max(0,Math.min(1,Number(payload.value)||0));
     else if(command==='dispose')dispose();
     else if (command === 'motion') {

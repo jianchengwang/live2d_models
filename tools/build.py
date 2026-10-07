@@ -42,10 +42,11 @@ def build(base='/live2d_models/',release=False,source=None,site_addition=False):
     for directory in ['studio','v2']:
         for p in (ROOT/directory).iterdir():
             if p.suffix in {'.html','.css','.js'}:dest=out/p.relative_to(ROOT);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
+    shutil.copytree(ROOT/'vendor',out/'vendor')
     runtime={'available':bool(release or site_addition),'developmentOnly':False,'existingRuntimeOnly':bool(site_addition)}
     configured_runtime=json.loads((ROOT/'v2/runtime.json').read_text())
     if configured_runtime.get('modernCoreURL'):runtime['existingRuntimeOnly']=False
-    for key in ['modernCoreURL','modernCoreIntegrity']:
+    for key in ['modernCoreURL','modernCoreIntegrity','cubism53CoreURL','cubism53CoreIntegrity']:
         if configured_runtime.get(key):runtime[key]=configured_runtime[key]
     (out/'v2/runtime.json').write_text(json.dumps(runtime)+'\n')
     catalog=json.loads((ROOT/'catalog/models.json').read_text())

@@ -24,7 +24,7 @@ export function assertCoreVersion(version, core) {
 }
 
 export function selectCoreURL(runtime, runtimeRoot, requiredVersion) {
-  const root=new URL(runtimeRoot), value=requiredVersion>3&&runtime.modernCoreURL?runtime.modernCoreURL:'assets/js/lib/live2dcubismcore.min.js';
+  const root=new URL(runtimeRoot), value=requiredVersion>5&&runtime.cubism53CoreURL?runtime.cubism53CoreURL:requiredVersion>3&&runtime.modernCoreURL?runtime.modernCoreURL:'assets/js/lib/live2dcubismcore.min.js';
   const url=new URL(value,root);
   if(url.username||url.password||url.search||url.hash||!(url.origin===root.origin||url.origin==='https://cubism.live2d.com'))
     throw new Error('新版 Core 必须来自已确认的同源运行时或 Live2D 官方 hosting');

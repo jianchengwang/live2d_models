@@ -3,5 +3,7 @@
   "developmentOnly": false,
   "existingRuntimeOnly": false,
   "modernCoreURL": "https://cubism.live2d.com/sdk-web/core/05/live2dcubismcore.min.js",
-  "modernCoreIntegrity": "sha384-MeKqhuhBpq1ZqqshjOzqDOQJ/00BuDVdnNeYgPKul9hmgROzmT17WkmUeFJ9Jlrb"
+  "modernCoreIntegrity": "sha384-MeKqhuhBpq1ZqqshjOzqDOQJ/00BuDVdnNeYgPKul9hmgROzmT17WkmUeFJ9Jlrb",
+  "cubism53CoreURL": "https://cubism.live2d.com/sdk-web/core/06/live2dcubismcore.min.js",
+  "cubism53CoreIntegrity": "sha384-KshektsgDLeJaInLQF891mST1tYYMpWEuzK4rQ6eYpwBwPohR3CjQEO855CYGgh6"
 }

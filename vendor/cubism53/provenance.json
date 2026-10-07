@@ -1,0 +1,18 @@
+{
+  "upstream": "https://github.com/Live2D/CubismWebFramework",
+  "tag": "5-r.5",
+  "commit": "198a3769c26ca3d7b600e932590433badd392edd",
+  "bundler": "esbuild 0.25.12",
+  "target": "es2020",
+  "coreIncluded": false,
+  "coreHostingURL": "https://cubism.live2d.com/sdk-web/core/06/live2dcubismcore.min.js",
+  "license": "https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html",
+  "coreVersionTested": "6.0.1",
+  "maxMocVersionTested": 6,
+  "coreSha256Tested": "8741f739779b5d5210872bd3d7d99f0f1e56e6c87409e7d26d6bb4b80aa1ef47",
+  "coreIntegrity": "sha384-KshektsgDLeJaInLQF891mST1tYYMpWEuzK4rQ6eYpwBwPohR3CjQEO855CYGgh6",
+  "bundledModules": {
+    "cubism53-framework.js": "bf3132d734bf8bec73d49368cc95630d13ac1db89ca03883696cb9df7ee1ca6f",
+    "cubism53-shaders.js": "c78b94efd21b81f01e87be117d376bb1c155be4591aaf079beb98962b8ff1e0e"
+  }
+}
