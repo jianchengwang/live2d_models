@@ -200,17 +200,18 @@ test('editable system prompt is transmitted and emitted in the public configurat
   assert.equal(f.$('.key').value,'');assert.ok(!JSON.stringify(f.changes).includes(key));
 });
 
-test('editing provider fields without applying immediately revokes the old session',async t=>{
-  const f=await fixture(t);await f.apply();f.$('.endpoint').value='https://different-provider.example/v1/chat';await f.$('.endpoint').fire('input').done;
-  await f.submit('do not use the old endpoint');assert.equal(f.calls.length,0);assert.doesNotMatch(f.$('.messages').textContent,/本地 mock 回复/);
-  await f.apply({endpoint:f.$('.endpoint').value});await f.submit('use the applied endpoint');
-  assert.equal(f.calls.length,1);assert.equal(f.calls[0].url,'https://different-provider.example/v1/chat');
+test('canceling unapplied settings restores the previous trusted provider and prompt',async t=>{
+ const f=await fixture(t);await f.apply();f.widget.open();await f.click('.settings-toggle');
+ f.$('.endpoint').value='https://different-provider.example/v1/chat';await f.$('.endpoint').fire('input').done;f.$('.system-prompt').value='Discard this draft';f.$('.key').value='discarded-draft-key';
+ await f.click('.settings-done');assert.equal(f.$('.key').value,'');assert.equal(f.$('.endpoint').value,endpoint);assert.equal(f.$('.system-prompt').value,'');
+ await f.submit('continue previous session');assert.equal(f.calls.length,1);assert.equal(f.calls[0].url,endpoint);assert.equal(f.calls[0].options.headers.Authorization,'Bearer '+key);
+ await f.click('.settings-toggle');await f.apply({endpoint:'https://different-provider.example/v1/chat',key:'',trusted:true});await f.click('.settings-done');await f.submit('failed Apply must revoke old session');assert.equal(f.calls.length,1);
 });
 
 test('missing chat settings are unconfigured until the visitor explicitly chooses a mode',async t=>{
   const f=await fixture(t,{chat:undefined});await f.submit('no implicit demo');assert.equal(f.calls.length,0);
   assert.doesNotMatch(f.$('.messages').textContent,/本地 mock 回复/);assert.equal(f.$('.mode').value,'unconfigured');
-  assert.equal(f.$('.settings').hidden,false);
+  assert.equal(f.$('.settings').hidden,true);assert.equal(f.$('.input').value,'no implicit demo');assert.match(f.$('.status').textContent,/尚未配置/);
 });
 
 test('late speech failure from a canceled turn cannot stop newer speech or change status',async t=>{
@@ -275,4 +276,23 @@ test('responsive sizing clamps workspace to viewport and switches narrow layout 
  assert.equal(f.widget.element.style['--workspace-width'],'343px');assert.equal(f.widget.element.style['--workspace-height'],'580px');assert.equal(f.widget.element.getAttribute('compact'),'');
  globalThis.innerWidth=1440;globalThis.innerHeight=900;f.widget.configure({appearance:{gutter:16,bottom:20}});
  assert.equal(f.widget.element.style['--workspace-width'],'840px');assert.equal(f.widget.element.getAttribute('compact'),null);assert.equal(f.widget.element.getAttribute('expanded'),'');
+});
+
+
+test('role switching cancels previous stream and uses only each role name and system prompt',async t=>{
+ const a={name:'阅读伙伴',url:manifest.entryUrl,systemPrompt:'只回答阅读问题。'},b={name:'运动伙伴',url:'https://models.example/b.model3.json',systemPrompt:'只回答运动问题。'};
+ const changes=[],f=await fixture(t,{models:[a,b],onModelChange:role=>changes.push(role)});await f.apply();await f.submit('role A history');assert.deepEqual(f.calls.at(-1).body.messages[0],{role:'system',content:a.systemPrompt});
+ const pending=deferred();f.setFetch(()=>pending.promise);const old=f.submit('abandoned A');await turn();const request=f.calls.at(-1);
+ await f.widget.setModel({...manifest,entryUrl:b.url});assert.equal(request.options.signal.aborted,true);assert.equal(f.$('.character-name').textContent,b.name);assert.equal(f.$('.system-prompt').value,b.systemPrompt);
+ f.setFetch(async()=>sse('role B answer'));await f.submit('question for B');assert.deepEqual(f.calls.at(-1).body.messages,[{role:'system',content:b.systemPrompt},{role:'user',content:'question for B'}]);assert.equal(f.calls.at(-1).options.headers.Authorization,'Bearer '+key);
+ pending.resolve(sse('STALE ROLE A'));await old;assert.doesNotMatch(f.$('.messages').textContent,/STALE ROLE A/);
+ await f.widget.setModel(manifest);assert.equal(f.$('.character-name').textContent,a.name);assert.equal(f.$('.system-prompt').value,a.systemPrompt);assert.equal(changes.at(-1).url,a.url);
+ f.widget.configure({models:[a,b],allowSwitch:false});assert.equal(f.$('.model-select').hidden,true);f.widget.configure({allowSwitch:true});assert.equal(f.$('.model-select').hidden,false);assert.equal(f.$('.model-select').value,0);
+});
+
+
+test('standalone role Apply keeps its edited prompt across switches and closing settings cancels drafts',async t=>{
+ const a={name:'A',url:manifest.entryUrl,systemPrompt:'Prompt A'},b={name:'B',url:'https://models.example/b.model3.json',systemPrompt:'Prompt B'},f=await fixture(t,{models:[a,b]});await f.apply();
+ f.$('.system-prompt').value='Updated A';await f.click('.apply');await f.widget.setModel({...manifest,entryUrl:b.url});assert.equal(f.$('.system-prompt').value,'Prompt B');await f.widget.setModel(manifest);assert.equal(f.$('.system-prompt').value,'Updated A');
+ f.widget.open();await f.click('.settings-toggle');f.$('.system-prompt').value='Unapplied draft';f.$('.key').value='Discarded';await f.click('.close');f.widget.open();assert.equal(f.$('.settings').hidden,true);assert.equal(f.$('.system-prompt').value,'Updated A');assert.equal(f.$('.key').value,'');await f.submit('still authorized');assert.equal(f.calls.at(-1).options.headers.Authorization,'Bearer '+key);
 });

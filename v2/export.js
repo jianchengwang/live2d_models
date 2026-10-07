@@ -12,7 +12,7 @@ export function publicConfig(raw,{base=globalThis.location?.href}={}){
   if(chat.mode!==undefined&&!['unconfigured','mock','direct','backend'].includes(chat.mode))throw new Error('未知对话方式，请明确选择本地演示、自己的供应商或服务器接口');
   if(voice.mode!==undefined&&!['browser','endpoint'].includes(voice.mode))throw new Error('未知语音方式');
   const mode=chat.mode||'unconfigured';
-  const cfg={schemaVersion:1,title:text(raw.title||'Live2D 伙伴',50),modelUrl:publicUrl(raw.modelUrl,base),models:(raw.models||[]).slice(0,64).map(m=>({name:text(m.name,60),url:publicUrl(m.url,base)})),runtimeBase:publicUrl(raw.runtimeBase||new URL('../',import.meta.url).href,base),compatibility:raw.compatibility!==false,
+  const cfg={schemaVersion:1,title:text(raw.title||'Live2D 伙伴',50),modelUrl:publicUrl(raw.modelUrl,base),models:(raw.models||[]).slice(0,64).map(m=>({name:text(m.name,50),url:publicUrl(m.url,base),...(Object.hasOwn(m,'systemPrompt')?{systemPrompt:promptText(m.systemPrompt)}:{})})),...(Object.hasOwn(raw,'allowSwitch')?{allowSwitch:raw.allowSwitch!==false}:{}),runtimeBase:publicUrl(raw.runtimeBase||new URL('../',import.meta.url).href,base),compatibility:raw.compatibility!==false,
     appearance:{width:number(a.width,240,100,700),height:number(a.height,360,160,700),side:a.side==='left'?'left':'right',bottom:number(a.bottom,20,0,100),gutter:number(a.gutter,16,0,100),zoom:number(a.zoom,1,.2,2),x:number(a.x,0,-.7,.7),y:number(a.y,0,-.7,.7)},
     chat:{mode,endpoint:chat.endpoint?publicUrl(chat.endpoint,base):'',model:text(chat.model,200),systemPrompt:promptText(chat.systemPrompt)},
     voice:{enabled:!!voice.enabled,mode:voice.mode==='endpoint'?'endpoint':'browser',endpoint:voice.endpoint?publicUrl(voice.endpoint,base):'',lang:text(voice.lang||'zh-CN',30),voiceName:text(voice.voiceName,100),volume:number(voice.volume,1,0,1),rate:number(voice.rate,1,.5,2),pitch:number(voice.pitch,1,.5,2)}};
@@ -20,7 +20,7 @@ export function publicConfig(raw,{base=globalThis.location?.href}={}){
   if(!new URL(cfg.runtimeBase).pathname.endsWith('/'))throw new Error('runtimeBase 必须是资源目录 URL');
   // Never serialize private fields. Reject known credentials copied into otherwise public text or URLs.
   const serialized=JSON.stringify(cfg);
-  for(const source of [raw,chat,voice,raw.session])if(record(source))for(const key of ['key','apiKey']){const secret=source[key];if(typeof secret==='string'&&secret&&serialized.includes(JSON.stringify(secret).slice(1,-1)))throw new Error('公开配置含有会话密钥，请从公开文本或 URL 中移除后再导出');}
+  for(const source of [raw,chat,voice,raw.session,...(raw.models||[])])if(record(source))for(const key of ['key','apiKey']){const secret=source[key];if(typeof secret==='string'&&secret&&serialized.includes(JSON.stringify(secret).slice(1,-1)))throw new Error('公开配置含有会话密钥，请从公开文本或 URL 中移除后再导出');}
   return cfg;
 }
 export function parsePublicConfig(source,options={}){

@@ -25,3 +25,16 @@ Demo replies require explicit `chat.mode: 'mock'`. Missing, cleared or invalid p
 Set `chat.systemPrompt` (up to 12,000 characters) in the generator or runtime settings. It is sent as the first system message on every request and is part of the public configuration, so it must not contain secrets. Runtime Apply synchronizes public chat settings back into the generator. Download/import JSON preserves public appearance, model, LLM and voice settings while ignoring credentials, trust flags, history and unknown fields. Imported direct mode always needs a new session key and endpoint confirmation. API keys are never included in snippets, bootstrap JS or ZIP exports.
 
 Automated chat tests use synthetic fetch responses and a DOM harness; they do not call a real provider or establish real-provider account validity. Actual desktop/mobile rendering and browser microphone/audio behavior still require browser QA.
+
+
+## 我的角色与公开配置保存
+
+生成器默认只展示少量常用角色。打开“管理常用角色”勾选仓库模型，按“保存选择”生效；取消保留原列表，不能保存空列表。每个角色按完整模型 URL 标识，名称和 system prompt 独立保存，改名不会改变模型资源路径。角色切换会取消旧回复并清空会话历史，所选可信供应商的内存会话凭据保持有效。
+
+名称、prompt、常用列表、当前角色、外观、公开供应商参数和声音配置经过白名单后保存在浏览器 `live2d-studio-public-v1`。生成器可刷新恢复，也可下载/导入配置 JSON。角色设定是公开配置，请勿放入隐私。API key、信任授权、聊天记录、回调及本地 Blob 模型不会持久化；刷新或配置导入后 BYOK 需重新输入密钥并确认 endpoint。浏览器禁用存储时当前页仍可编辑和下载配置。
+
+新配置在 `models[]` 中附带各自的 `systemPrompt`；`allowSwitch` 控制是否显示切换器，关闭切换不会删除其他已保存角色。旧配置可继续导入，选中角色继承旧的标题和 prompt，其他角色的 prompt 为空。ZIP 与引导 JS 都保留角色名单及独立 prompt，仍不复制仓库模型或 Core。
+
+发送未配置的消息仅显示说明并保留草稿，不自动打开设置，也不自动回复 mock。设置只有按“应用对话设置”才改变有效会话；取消、Escape 或关闭聊天会丢弃未应用的修改。无效的 Apply 会撤销旧凭据并明确报错。显式选择本地演示仍可用于无网络体验。
+
+展开、收起或调整屏宽时，iframe 内的 WebGL viewport 与 canvas drawing buffer 同步更新，避免保留旧 viewport 造成角色拉伸。原模型、纹理和旧 renderer/Core 字节不改。

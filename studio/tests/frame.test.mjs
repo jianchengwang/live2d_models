@@ -11,8 +11,8 @@ async function scenario({webgl=true,version=2,missingTexture=false,modern=false}
  const config={Version:3,FileReferences:{Moc:'a.moc3',Textures:['t.png'],Expressions:[{Name:'absent',File:'absent.exp3.json'}],Motions:{idle:[{File:'absent.motion3.json'}]}}};
  globalThis.window={fetch:async(url)=>{url=String(url);requests.push(url);if(url.endsWith('runtime.json'))return Response.json({available:true,...(modern?{modernCoreURL:'https://cubism.live2d.com/sdk-web/core/05/live2dcubismcore.min.js',modernCoreIntegrity:'sha384-test'}:{})});if(url===entryUrl)return Response.json(config);if(url.endsWith('a.moc3'))return new Response(bytes);if(url.endsWith('t.png')&&!missingTexture)return new Response(png);return new Response('missing',{status:404});},requestAnimationFrame:()=>1,cancelAnimationFrame(){}};
  globalThis.HTMLImageElement=class{};Object.defineProperty(HTMLImageElement.prototype,'src',{configurable:true,get(){return this.value;},set(v){this.value=v;}});
- const gl={MAX_TEXTURE_SIZE:3379,getParameter:()=>8192,getExtension:()=>({loseContext(){}})};
- const canvas={width:300,height:400,addEventListener(){}};
+ const viewports=[],gl={MAX_TEXTURE_SIZE:3379,getParameter:()=>8192,getExtension:()=>({loseContext(){}}),viewport:(...args)=>viewports.push(args)};
+ const canvas={width:300,height:400,addEventListener(){},getContext:()=>gl};
  globalThis.document={body:{dataset:{}},head:{append(script){scripts.push(script);queueMicrotask(()=>script.onload());}},getElementById:()=>({}),createElement:name=>name==='canvas'?{getContext:()=>webgl?gl:null}:{},querySelector:()=>rendered?canvas:null};
  globalThis.Live2DCubismCore={Version:{csmGetVersion:()=>67108864,csmGetLatestMocVersion:()=>modern?5:3}};
  const core={getParameterCount:()=>0,getDrawableCount:()=>0,getCanvasWidth:()=>2,getCanvasHeight:()=>3};
@@ -22,8 +22,15 @@ async function scenario({webgl=true,version=2,missingTexture=false,modern=false}
  const files=[['moc','a.moc3'],['texture','t.png'],['expression','absent.exp3.json'],['motion','absent.motion3.json']].map(([kind,ref])=>({kind,path:ref,url:new URL(ref,entryUrl).href}));
  await handlers.message({source:parent,origin,data:{token:'fixture',command:'load',payload:{model:{entryUrl,files,motions:[{group:'idle',index:0,file:'absent.motion3.json'}],expressions:[{name:'absent',file:'absent.exp3.json'}],previewCompatibility:true},dpr:1,width:300,height:400}}});
  await new Promise(resolve=>setImmediate(resolve));
- return {events,rendered,requests,scripts};
+ return {events,rendered,requests,scripts,canvas,viewports,resize:payload=>handlers.message({source:parent,origin,data:{token:'fixture',command:'resize',payload}})};
 }
+test('resizing synchronizes the actual WebGL viewport with the drawing buffer at each aspect and DPR',async()=>{
+ const result=await scenario();
+ for(const [width,height,dpr] of [[308,424,1],[166,148,2],[240,400,1]]){
+  await result.resize({width,height,dpr});assert.deepEqual([result.canvas.width,result.canvas.height],[width*dpr,height*dpr]);
+  assert.deepEqual(result.viewports.at(-1),[0,0,width*dpr,height*dpr]);
+ }
+});
 test('missing optional resource fetches do not abort renderer or hide failure diagnostics',async()=>{
  const result=await scenario();assert.equal(result.rendered,true);assert.ok(!result.events.some(e=>e.type==='error'));
  const loaded=result.events.find(e=>e.type==='loaded').detail;assert.deepEqual(loaded.unavailableExpressions,['absent']);assert.equal(loaded.unavailableMotions.length,1);assert.match(loaded.diagnostics.join('\n'),/404/);

@@ -150,7 +150,7 @@ addEventListener('message', async event => {
     else if (command === 'pause') pause();
     else if (command === 'resume') resume();
     else if(command==='view'){view={...view,...payload};applyView();}
-    else if(command==='resize'){const c=document.querySelector('canvas');if(c){c.width=Math.max(1,Math.round(payload.width*payload.dpr));c.height=Math.max(1,Math.round(payload.height*payload.dpr));applyView();}}
+    else if(command==='resize'){const c=document.querySelector('canvas');if(c){c.width=Math.max(1,Math.round(payload.width*payload.dpr));c.height=Math.max(1,Math.round(payload.height*payload.dpr));const gl=c.getContext('webgl')||c.getContext('experimental-webgl');gl?.viewport(0,0,c.width,c.height);applyView();}}
     else if(command==='lip-sync')lip=Math.max(0,Math.min(1,Number(payload.value)||0));
     else if(command==='dispose')dispose();
     else if (command === 'motion') {
