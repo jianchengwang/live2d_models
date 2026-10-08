@@ -1,0 +1,107 @@
+--- moc3writer.original.mjs
++++ moc3writer.direct-keyforms.mjs
+@@ -1,3 +1,6 @@
++// Adapted only for a one-parameter direct-ArtMesh proof. Not executed or validated yet.
++// Upstream: MangoLion/stretchystudio @ 24a83a27ba43e43e9d2e3de5e33994594e6199c2
++// Copyright (c) 2026 Nguyen Phan; MIT license in LICENSE.MIT.
+ /**
+  * Minimal .moc3 binary writer for Live2D Cubism export.
+  *
+@@ -409,7 +412,10 @@
+   const numParts = partNodes.length;
+   const numArtMeshes = meshParts.length;
+   const numParams = params.length > 0 ? params.length : 1; // At least 1 parameter (ParamOpacity)
+-  const numArtMeshKeyforms = numArtMeshes; // 1 keyform per mesh (default pose)
++  const meshFrames = meshParts.map(p => p.moc3Keyforms ?? [p.mesh.vertices]);
++  const meshFrameBegins = []; let frameCursor = 0;
++  for (const frames of meshFrames) { meshFrameBegins.push(frameCursor); frameCursor += frames.length; }
++  const numArtMeshKeyforms = frameCursor; // Direct ArtMesh endpoints, no deformers.
+   const numPartKeyforms = numParts;
+ 
+   // Compute UV and vertex counts
+@@ -430,7 +436,7 @@
+   let totalFlatIndices = 0;
+   let totalKeyformPositions = 0;
+ 
+-  const meshInfos = meshParts.map(part => {
++  const meshInfos = meshParts.map((part, mi) => {
+     const mesh = part.mesh;
+     // vertices is Array<{x, y}> — the rendering vertex count
+     const renderVertCount = mesh.vertices ? mesh.vertices.length : 0;
+@@ -447,7 +453,7 @@
+ 
+     totalUVs += renderVertCount * 2;
+     totalFlatIndices += flatIndexCount;
+-    totalKeyformPositions += renderVertCount * 2;
++    totalKeyformPositions += renderVertCount * 2 * meshFrames[mi].length;
+ 
+     return info;
+   });
+@@ -474,7 +480,7 @@
+   counts[COUNT_IDX.KEYFORM_BINDINGS] = numArtMeshes + numBoundWd;
+   counts[COUNT_IDX.KEYFORM_BINDING_BANDS] = numBands;
+   counts[COUNT_IDX.KEYFORM_BINDING_INDICES] = numArtMeshes + numBoundWd;
+-  counts[COUNT_IDX.KEYS] = numArtMeshes + totalBoundWarpKfs;
++  counts[COUNT_IDX.KEYS] = numArtMeshKeyforms + totalBoundWarpKfs;
+ 
+   // Drawable masks: 1 dummy entry (SDK requires begin < total, can't use -1 with total=0)
+   counts[COUNT_IDX.DRAWABLE_MASKS] = 1;
+@@ -500,8 +506,8 @@
+   sections.set('art_mesh.ids', meshParts.map((p, i) => `ArtMesh${i}`));
+   // Each mesh gets its own binding band (band i → mesh i)
+   sections.set('art_mesh.keyform_binding_band_indices', meshParts.map((_, i) => i));
+-  sections.set('art_mesh.keyform_begin_indices', meshParts.map((_, i) => i));
+-  sections.set('art_mesh.keyform_counts', meshParts.map(() => 1));
++  sections.set('art_mesh.keyform_begin_indices', meshFrameBegins);
++  sections.set('art_mesh.keyform_counts', meshFrames.map(f => f.length));
+   sections.set('art_mesh.visibles', meshParts.map(p => p.visible !== false));
+   sections.set('art_mesh.enables', meshParts.map(() => true));
+   sections.set('art_mesh.parent_part_indices', meshParts.map(p => {
+@@ -536,9 +542,9 @@
+   sections.set('part_keyform.draw_orders', partNodes.map(() => 500.0));
+ 
+   // --- ArtMesh Keyform sections ---
+-  sections.set('art_mesh_keyform.opacities', meshParts.map(p => p.opacity ?? 1));
+-  sections.set('art_mesh_keyform.draw_orders', meshParts.map(() => 500.0));
+-  sections.set('art_mesh_keyform.keyform_position_begin_indices', meshInfos.map(m => m.keyformPositionBeginIndex));
++  sections.set('art_mesh_keyform.opacities', meshParts.flatMap((p, i) => meshFrames[i].map(() => p.opacity ?? 1)));
++  sections.set('art_mesh_keyform.draw_orders', meshFrames.flatMap(f => f.map(() => 500.0)));
++  sections.set('art_mesh_keyform.keyform_position_begin_indices', meshInfos.flatMap((m, i) => meshFrames[i].map((_, k) => m.keyformPositionBeginIndex + k * m.renderVertCount * 2)));
+ 
+   // --- Keyform positions (vertex coordinates in normalized model space) ---
+   // Cubism SDK returns positions to Ren'Py which then multiplies by PPU in the shader:
+@@ -552,9 +558,9 @@
+   const originX = canvasW / 2;
+   const originY = canvasH / 2;
+   const allKeyformPositions = [];
+-  for (const part of meshParts) {
+-    if (part.mesh?.vertices) {
+-      for (const vert of part.mesh.vertices) {
++  for (const frames of meshFrames) {
++    for (const vertices of frames) {
++      for (const vert of vertices) {
+         allKeyformPositions.push((vert.x - originX) / ppu);
+         allKeyformPositions.push((vert.y - originY) / ppu);
+       }
+@@ -631,9 +637,9 @@
+   sections.set('keyform_binding_index.indices', bindingIndices);
+ 
+   // Bindings: mesh bindings (1 key each) + warp deformer bindings (N keys each)
+-  const keysBeginIndices = Array.from({ length: numArtMeshes }, (_, i) => i);
+-  const keysCounts = Array.from({ length: numArtMeshes }, () => 1);
+-  let warpKeyCursor = numArtMeshes;
++  const keysBeginIndices = meshFrameBegins.slice();
++  const keysCounts = meshFrames.map(f => f.length);
++  let warpKeyCursor = numArtMeshKeyforms;
+   for (const d of sortedBoundWd) {
+     keysBeginIndices.push(warpKeyCursor);
+     keysCounts.push(d.numKf);
+@@ -644,7 +650,7 @@
+ 
+   // Keys: art mesh keys (at first param default), then warp deformer keys (evenly spaced param range)
+   const paramDefault = paramList[0]?.default ?? 0;
+-  const keyValues = Array.from({ length: numArtMeshes }, () => paramDefault);
++  const keyValues = meshFrames.flatMap(frames => frames.map((_, k) => frames.length > 1 ? (paramList[0].min ?? 0) + k * ((paramList[0].max ?? 1) - (paramList[0].min ?? 0)) / (frames.length - 1) : paramDefault));
+   for (const d of sortedBoundWd) {
+     const pMin = d.param.min ?? 0;
+     const pMax = d.param.max ?? 1;
