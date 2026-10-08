@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib,json,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'skills/live2d-local'
-DEST=ROOT/'skills/live2d-local-skill-0.1.0.zip'
+DEST=ROOT/'skills/live2d-local-skill-0.2.0.zip'
 def build():
     provenance=json.loads((SOURCE/'PROVENANCE.json').read_text())
     writer=(SOURCE/'vendor/experimental-moc3/moc3writer.js').read_bytes()

@@ -6,8 +6,8 @@ import {EditHistory,editorState,restoreEditorState,layerState,transformGeometry,
 import {launchPreview} from './mesh-handoff.js?ui=3';
 import {MATERIAL_ROLES,defaultActionParameters,inferMaterialRole,applyMaterialManifest,mainAlphaBounds} from '../v2/material-contract.js?ui=3';
 import {ACTIONS,ensureActionParameters,inferProjectRoles,actionStatus,bindBasicAction,bindAllBasics,actionSignature} from './mesh-actions.js?ui=3';
-import {guardMoc3Structure,planMoc3} from './moc3-plan.js?ui=4';
-import {launchMoc3Export} from './moc3-handoff.js?ui=4';
+import {guardMoc3Structure,planMoc3} from './moc3-plan.js?ui=5';
+import {launchMoc3Export} from './moc3-handoff.js?ui=5';
 let moc3SourceWarning='',moc3Close;
 const $=id=>document.getElementById(id),overlay=$('mesh-canvas'),ctx=overlay.getContext('2d');
 let project,renderer,selected=0,parameter='',endpoint=0,mode='layer',target='base',playing=false,dirty=false,gesture,frame,revision=0,loading;

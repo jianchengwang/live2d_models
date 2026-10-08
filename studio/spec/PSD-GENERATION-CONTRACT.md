@@ -62,7 +62,7 @@ save/reopen, and explicit visual review. Never turn a name match into visual app
 
 Existing mesh2d v1 projects may have `ParamEyeLOpen` with reversed legacy behavior: 0 open,
 1 squashed closed. Preserve their rendered behavior; do not reinterpret an old parameter
-solely by its ID. New projects must declare their semantics. A future MOC3 exporter must
+solely by its ID. New projects must declare their semantics. The experimental MOC3 exporter must
 explicitly map legacy close01 keyforms to standard open01, including default values and
 motion curves, before naming them as standard eye-open parameters.
 

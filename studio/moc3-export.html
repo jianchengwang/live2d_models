@@ -1,10 +1,10 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://cubism.live2d.com; worker-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' blob:">
-<link rel="icon" href="data:,"><title>实验性 MOC3 导出</title><link rel="stylesheet" href="moc3-export.css?ui=4"><script type="module" src="moc3-export.js?ui=4"></script></head>
-<body><p><a href="./local-skill.html">下载本地 Agent 技能包 ↗</a></p><h1>实验性 MOC3 导出</h1><p>仅扁平网格、一个运动参数、两个关键形。旋转、层级、蒙版、物理和多参数组合会拒绝。素材不上传。</p>
-<p><a href="./mesh-editor.html?ui=4">返回网格编辑器</a> · 素材和模型在当前浏览器内处理；官方 Core 使用已有固定来源。</p><button id="sample">打开原创合成样例</button><label>本地网格项目 <input id="project" type="file" accept=".json"></label><label>参数 <select id="parameter"></select></label>
+<link rel="icon" href="data:,"><title>实验性 MOC3 导出</title><link rel="stylesheet" href="moc3-export.css?ui=5"><script type="module" src="moc3-export.js?ui=5"></script></head>
+<body><p><a href="./local-skill.html">下载本地 Agent 技能包 ↗</a></p><h1>实验性 MOC3 导出</h1><p>仅扁平网格、1–4 个独立运动参数；每个网格最多一个动态参数、两个关键形。旋转、层级、蒙版、物理和同网格多参数会拒绝。素材不上传。</p>
+<p><a href="./mesh-editor.html?ui=5">返回网格编辑器</a> · 素材和模型在当前浏览器内处理；官方 Core 使用已有固定来源。</p><button id="sample">打开原单参数样例</button><button id="multi-sample">打开原创四参数样例</button><label>本地网格项目 <input id="project" type="file" accept=".json"></label><label>参数 <select id="parameter"></select></label>
 <button id="generate" disabled>生成并验收 MOC3</button><p id="status">请选择本地项目。</p>
-<div class="controls"><button id="zero" disabled>参数 0</button><button id="half" disabled>参数 0.5</button><button id="one" disabled>参数 1</button><button id="motion" disabled>播放测试动作</button><button id="compare" disabled>核对当前画面</button></div>
+<div class="controls"><button id="zero" disabled>参数 0</button><button id="half" disabled>参数 0.5</button><button id="one" disabled>参数 1</button><button id="motion" disabled>播放测试动作</button><button id="compare" disabled>核对当前画面</button><button id="combinations" disabled>核对全部独立组合</button></div>
 <div class="views"><section><h2>源网格</h2><canvas id="source"></canvas></section><section><h2>导出模型 · 官方运行时</h2><div id="target"></div></section></div>
-<label><input id="review" type="checkbox" disabled>已检查贴图方向、轮廓遮挡和端点动作；这是单参数模型</label><button id="download" disabled>下载验收模型包</button>
+<label><input id="review" type="checkbox" disabled>已检查贴图方向、轮廓遮挡和端点动作；已核对独立参数的基础形变；不代表完整眼嘴或骨骼绑定</label><button id="download" disabled>下载验收模型包</button><button id="source-download" disabled>保存可编辑源项目</button>
 <label>重新打开导出的 ZIP <input id="package" type="file" accept=".zip"></label><button id="audit" disabled>保存验证报告</button><pre id="report"></pre></body></html>

@@ -23,6 +23,13 @@ export function assertCoreVersion(version, core) {
   return {mocVersion:version,maxMocVersion:supported,coreVersion:core.Version.csmGetVersion()};
 }
 
+export function preferredRuntimeVersion(config,version){
+  if(config.StudioRuntime===undefined)return version;
+  const profile=config.StudioRuntime;
+  if(profile?.profile!=='flat-independent-v1'||profile.core!==6||Object.keys(profile).some(k=>!['profile','core'].includes(k)))throw new Error('未知 Studio 运行时声明；不加载包内脚本或外部 Core');
+  return Math.max(version,6);
+}
+
 export function selectCoreURL(runtime, runtimeRoot, requiredVersion) {
   const root=new URL(runtimeRoot), value=requiredVersion>5&&runtime.cubism53CoreURL?runtime.cubism53CoreURL:requiredVersion>3&&runtime.modernCoreURL?runtime.modernCoreURL:'assets/js/lib/live2dcubismcore.min.js';
   const url=new URL(value,root);

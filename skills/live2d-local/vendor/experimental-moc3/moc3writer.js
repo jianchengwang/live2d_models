@@ -1,4 +1,4 @@
-// Adapted only for a one-parameter direct-ArtMesh proof. Not executed or validated yet.
+// Bounded independent direct-ArtMesh adapter. Validated with official Core 6.
 // Upstream: MangoLion/stretchystudio @ 24a83a27ba43e43e9d2e3de5e33994594e6199c2
 // Copyright (c) 2026 Nguyen Phan; MIT license in LICENSE.MIT.
 /**
@@ -412,6 +412,11 @@ function buildSectionData(input) {
   const numParts = partNodes.length;
   const numArtMeshes = meshParts.length;
   const numParams = params.length > 0 ? params.length : 1; // At least 1 parameter (ParamOpacity)
+  if (numWarpDeformers) throw new Error('Independent mesh proof rejects deformers');
+  const meshParamIndices = meshParts.map(p => p.moc3ParameterIndex ?? 0);
+  if (meshParamIndices.some(i => !Number.isInteger(i) || i < 0 || i >= paramList.length)) throw new Error('Invalid mesh parameter ownership');
+  const meshBindingOrder = meshParts.map((_, i) => i).filter(i => meshParts[i].moc3Keyforms?.length > 1).sort((a,b) => meshParamIndices[a]-meshParamIndices[b] || a-b);
+  const meshBindingIndex = new Map(meshBindingOrder.map((meshIndex,bindingIndex) => [meshIndex,bindingIndex]));
   const meshFrames = meshParts.map(p => p.moc3Keyforms ?? [p.mesh.vertices]);
   const meshFrameBegins = []; let frameCursor = 0;
   for (const frames of meshFrames) { meshFrameBegins.push(frameCursor); frameCursor += frames.length; }
@@ -477,10 +482,10 @@ function buildSectionData(input) {
   //   Bands M+P..M+P+W-1      : deformer null bands (deformer-level props, unused)
   //   Bands M+P+W..M+P+2W-1   : warp deformer real bands (grid keyform driver)
   const numBands = numArtMeshes + numParts + numWarpDeformers * 2;
-  counts[COUNT_IDX.KEYFORM_BINDINGS] = numArtMeshes + numBoundWd;
+  counts[COUNT_IDX.KEYFORM_BINDINGS] = meshBindingOrder.length + numBoundWd;
   counts[COUNT_IDX.KEYFORM_BINDING_BANDS] = numBands;
-  counts[COUNT_IDX.KEYFORM_BINDING_INDICES] = numArtMeshes + numBoundWd;
-  counts[COUNT_IDX.KEYS] = numArtMeshKeyforms + totalBoundWarpKfs;
+  counts[COUNT_IDX.KEYFORM_BINDING_INDICES] = meshBindingOrder.length + numBoundWd;
+  counts[COUNT_IDX.KEYS] = meshBindingOrder.reduce((n,i) => n+meshFrames[i].length,0) + totalBoundWarpKfs;
 
   // Drawable masks: 1 dummy entry (SDK requires begin < total, can't use -1 with total=0)
   counts[COUNT_IDX.DRAWABLE_MASKS] = 1;
@@ -543,7 +548,7 @@ function buildSectionData(input) {
 
   // --- ArtMesh Keyform sections ---
   sections.set('art_mesh_keyform.opacities', meshParts.flatMap((p, i) => meshFrames[i].map(() => p.opacity ?? 1)));
-  sections.set('art_mesh_keyform.draw_orders', meshFrames.flatMap(f => f.map(() => 500.0)));
+  sections.set('art_mesh_keyform.draw_orders', meshParts.flatMap((p,i) => meshFrames[i].map(() => 500.0 + (p.draw_order ?? 0))));
   sections.set('art_mesh_keyform.keyform_position_begin_indices', meshInfos.flatMap((m, i) => meshFrames[i].map((_, k) => m.keyformPositionBeginIndex + k * m.renderVertCount * 2)));
 
   // --- Keyform positions (vertex coordinates in normalized model space) ---
@@ -615,7 +620,7 @@ function buildSectionData(input) {
   //   M+P+W..M+P+2W-1: warp deformer real bands (grid keyform driver via parameter)
   const bandBegins = [];
   const bandCounts = [];
-  for (let i = 0; i < numArtMeshes; i++) { bandBegins.push(i); bandCounts.push(1); }
+  for (let i = 0; i < numArtMeshes; i++) { const binding = meshBindingIndex.get(i); bandBegins.push(binding ?? 0); bandCounts.push(binding === undefined ? 0 : 1); }
   for (let i = 0; i < numParts; i++) { bandBegins.push(0); bandCounts.push(0); }
   for (let i = 0; i < numWarpDeformers; i++) { bandBegins.push(0); bandCounts.push(0); } // deformer null
   for (let k = 0; k < numWarpDeformers; k++) {
@@ -632,13 +637,13 @@ function buildSectionData(input) {
   sections.set('keyform_binding_band.counts', bandCounts);
 
   // Binding indices: mesh bindings 0..M-1, then warp deformer bindings M..M+W_bound-1
-  const bindingIndices = Array.from({ length: numArtMeshes }, (_, i) => i);
+  const bindingIndices = meshBindingOrder.map((_,i) => i);
   for (let j = 0; j < numBoundWd; j++) bindingIndices.push(numArtMeshes + j);
   sections.set('keyform_binding_index.indices', bindingIndices);
 
   // Bindings: mesh bindings (1 key each) + warp deformer bindings (N keys each)
-  const keysBeginIndices = meshFrameBegins.slice();
-  const keysCounts = meshFrames.map(f => f.length);
+  let meshKeyCursor = 0; const keysBeginIndices = meshBindingOrder.map(i => { const begin = meshKeyCursor; meshKeyCursor += meshFrames[i].length; return begin; });
+  const keysCounts = meshBindingOrder.map(i => meshFrames[i].length);
   let warpKeyCursor = numArtMeshKeyforms;
   for (const d of sortedBoundWd) {
     keysBeginIndices.push(warpKeyCursor);
@@ -650,7 +655,7 @@ function buildSectionData(input) {
 
   // Keys: art mesh keys (at first param default), then warp deformer keys (evenly spaced param range)
   const paramDefault = paramList[0]?.default ?? 0;
-  const keyValues = meshFrames.flatMap(frames => frames.map((_, k) => frames.length > 1 ? (paramList[0].min ?? 0) + k * ((paramList[0].max ?? 1) - (paramList[0].min ?? 0)) / (frames.length - 1) : paramDefault));
+  const keyValues = meshBindingOrder.flatMap(i => { const frames = meshFrames[i], p = paramList[meshParamIndices[i]]; return frames.map((_, k) => frames.length > 1 ? (p.min ?? 0) + k * ((p.max ?? 1) - (p.min ?? 0)) / (frames.length - 1) : (p.default ?? 0)); });
   for (const d of sortedBoundWd) {
     const pMin = d.param.min ?? 0;
     const pMax = d.param.max ?? 1;
@@ -779,7 +784,7 @@ function buildSectionData(input) {
   // Each native parameter that drives a warp deformer owns its binding [M+j].
   const paramBindingBegins = paramList.map(() => 0);
   const paramBindingCounts = paramList.map(() => 0);
-  paramBindingCounts[0] = numArtMeshes; // param 0 owns all art mesh bindings
+  for (const [bindingIndex,meshIndex] of meshBindingOrder.entries()) { const p = meshParamIndices[meshIndex]; if (!paramBindingCounts[p]) paramBindingBegins[p] = bindingIndex; paramBindingCounts[p]++; }
   // Assign warp deformer bindings to their parameters (contiguous per param, ensured by sort)
   for (let j = 0; j < sortedBoundWd.length; j++) {
     const pIdx = sortedBoundWd[j].paramIdx;

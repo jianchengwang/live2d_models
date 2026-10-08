@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": "0.1.0",
+  "packageVersion": "0.2.0",
   "upstream": {
     "url": "https://github.com/MangoLion/stretchystudio",
     "commit": "24a83a27ba43e43e9d2e3de5e33994594e6199c2",
@@ -8,7 +8,7 @@
     "sourceSHA256": "f572264526f9de3f16632d3c99afb2ce015856f489d49ade815cddfa5abc82ae",
     "provenanceNote": "Upstream uses reverse-engineered MOC3 layout references (py-moc3 / moc3ingbird); this is not a clean-room implementation."
   },
-  "writerSHA256": "48991c49743f655a8f486716d2288391203df0ee15c30681f882a817fca6b715",
+  "writerSHA256": "cc3d3da169542deba778692663ef738b6d093c101d8132e449d882c43cf7cc3d",
   "coreIncluded": false,
   "core": {
     "url": "https://cubism.live2d.com/sdk-web/core/06/live2dcubismcore.min.js",
@@ -18,5 +18,6 @@
     "npm": [],
     "python": [],
     "node": ">=22.12.0"
-  }
+  },
+  "capability": "1\u20134 independent dynamic 0\u20131 parameters, at most one effective driver per mesh; static single-key/null-band fallback"
 }

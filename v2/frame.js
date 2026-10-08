@@ -1,4 +1,4 @@
-import {prepareModelConfig,declaredResource,mocVersion,assertCoreVersion,selectCoreURL} from './model-compatibility.js';
+import {prepareModelConfig,declaredResource,mocVersion,assertCoreVersion,selectCoreURL,preferredRuntimeVersion} from './model-compatibility.js?ui=5';
 import {containTransform,drawableBounds} from './fit.js';
 import {responseBytes} from './model-source.js';
 import {textureDimensions} from './importer.js';
@@ -90,8 +90,9 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
   // Read the actual binary before choosing a runtime; metadata alone is not Core acceptance.
   const mocFile=declaredResource(config.FileReferences?.Moc,manifest);
   const mocBytes=new Uint8Array((await resource(mocFile.url)).buffer),version=mocVersion(mocBytes);
-  await loadRuntime(version);
-  if(typeof Live2DCubismCore==='undefined' || (version<=5&&typeof L2dViewer==='undefined'))throw new Error('预览运行时未包含在当前构建；需先核实 Core 发布许可');
+  const runtimeVersion=preferredRuntimeVersion(config,version);
+  await loadRuntime(runtimeVersion);
+  if(typeof Live2DCubismCore==='undefined' || (runtimeVersion<=5&&typeof L2dViewer==='undefined'))throw new Error('预览运行时未包含在当前构建；需先核实 Core 发布许可');
   for (let i=0;i<100;i++) {
     try { if (Live2DCubismCore.Version.csmGetVersion()) break; } catch {}
     if (i === 99) throw new Error('本地 Core 初始化失败');
@@ -121,18 +122,19 @@ async function load({model,dpr,width=innerWidth,height=innerHeight,view:requeste
       const model = viewer.getModel(), core = model._model, parameters = [];
       for (let i=0;i<Math.min(core.getParameterCount?.() || 0,256);i++) {
         const id = core.getParameterId?.(i) || core._parameterIds?.at?.(i);
-        parameters.push({id:typeof id === 'string' ? id : id?.getString?.().s || core._model?.parameters?.ids?.[i] || `parameter-${i}`,
+        const name=id?.getString?.();
+        parameters.push({id:typeof id === 'string' ? id : typeof name==='string'?name:name?.s || core._model?.parameters?.ids?.[i] || `parameter-${i}`,
           minimum:core.getParameterMinimumValue(i), maximum:core.getParameterMaximumValue(i),
           value:core.getParameterValueByIndex(i)});
       }
       bounds=drawableBounds(core);
       const lipIds=(manifest.lipSyncIds?.length?manifest.lipSyncIds:parameters.filter(p=>/mouth.*open|open.*mouth/i.test(p.id)).map(p=>p.id)).filter(id=>parameters.some(p=>p.id===id));
       const lipIndices=lipIds.map(id=>parameters.findIndex(p=>p.id===id));
-      const update=model.update.bind(model);model.update=()=>{update();if(lipIndices.length){for(const i of lipIndices)core.setParameterValueByIndex(i,parameters[i].minimum+lip*(parameters[i].maximum-parameters[i].minimum));core.update();}};
+      const update=model.update.bind(model);model.update=()=>{update();if(lipIndices.length&&lip>0){for(const i of lipIndices)core.setParameterValueByIndex(i,parameters[i].minimum+lip*(parameters[i].maximum-parameters[i].minimum));core.update();}};
       const draw=model.draw.bind(model);model.draw=matrix=>{applyView();draw(matrix);};applyView();
-      send('loaded',{parameters,bounds,lipSyncIds:lipIds,unavailableMotions,unavailableExpressions,diagnostics,runtimeInfo,coreAcceptance:'accepted',renderer:version>5?'Cubism Web Framework 5-r.5':'existing renderer',note:'模型已加载；显示适配不代表参数已经绑定'});
+      send('loaded',{parameters,bounds,lipSyncIds:lipIds,unavailableMotions,unavailableExpressions,diagnostics,runtimeInfo,coreAcceptance:'accepted',renderer:runtimeVersion>5?'Cubism Web Framework 5-r.5':'existing renderer',note:'模型已加载；显示适配不代表参数已经绑定'});
     };
-  if(version>5){
+  if(runtimeVersion>5){
     const {createCubism53Viewer}=await import('./cubism53-viewer.js');
     viewer=await createCubism53Viewer({container:document.getElementById('canvas'),width:Math.max(1,Math.round(width*dpr)),height:Math.max(1,Math.round(height*dpr)),config,mocBytes,textureURLs:prepared.textures.map(file=>file.url),readJSON:async file=>motionBodies.has(file.url)?motionBodies.get(file.url):resourceJSON(file),resolveResource:ref=>declaredResource(ref,manifest),signal:abort.signal});
     finishedLoad();viewer.start();
