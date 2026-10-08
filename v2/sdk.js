@@ -22,6 +22,7 @@ export class Live2DViewer extends EventTarget {
   dimensions(){return {width:Math.max(1,this.container.clientWidth||300),height:Math.max(1,this.container.clientHeight||400),dpr:Math.min(devicePixelRatio||1,2)};}
   setView(view){this.view={...this.view,...view};this.command('view',this.view);}
   setLipSync(value){if(this.ready)this.command('lip-sync',{value:Math.max(0,Math.min(1,Number(value)||0))});}
+  setMeshParameter(id,value){if(!this.ready||this.model?.format!=='mesh2d')throw new Error('当前不是已加载的网格项目');this.command('mesh-parameter',{id,value});}
   stopFrame(reason = new DOMException('Load superseded', 'AbortError')) {
     clearTimeout(this.timer);
     this.pending?.cleanup(); this.pending?.reject(reason);this.ready=false; this.pending = null;
@@ -31,7 +32,7 @@ export class Live2DViewer extends EventTarget {
     if (this.disposed) return Promise.reject(new Error('Viewer destroyed'));
     clearTimeout(this.resizeTimer);this.stopFrame(); this.model = model;this.lastError=null;
     if (signal?.aborted) return Promise.reject(signal.reason || new DOMException('Aborted','AbortError'));
-    if (model.format !== 'moc3') return Promise.reject(new Error('首轮预览仅支持 moc3；旧 moc 保留索引'));
+    if (!['moc3','mesh2d'].includes(model.format)) return Promise.reject(new Error('首轮预览仅支持 moc3；旧 moc 保留索引'));
     if (!model.validation?.referencesComplete && (model.localImport || !model.files?.some(f=>f.kind==='moc') || !model.files?.some(f=>f.kind==='texture'))) return Promise.reject(new Error('模型依赖不完整，请查看诊断；旧包保持原样'));
     const entry = new URL(model.entryUrl, location.href);
     const assetPath=new URL('../assets/model/',import.meta.url).pathname;
@@ -45,12 +46,13 @@ export class Live2DViewer extends EventTarget {
     const frame = document.createElement('iframe');
     frame.title = '独立 Live2D 模型预览'; frame.className = 'viewer-frame';
     frame.setAttribute('sandbox','allow-scripts allow-same-origin');
-    const frameURL=new URL('./frame.html',import.meta.url);frameURL.searchParams.set('token',this.token);
+    const mesh=model.format==='mesh2d';
+    const frameURL=new URL(mesh?'./mesh-frame.html':'./frame.html',import.meta.url);frameURL.searchParams.set('token',this.token);
     if(this.options.embedded){
       const base=new URL('./',import.meta.url),runtime=new URL(this.options.runtimeBase||'../',base);
       const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const policy=`default-src 'none'; script-src 'self' ${base.origin} ${runtime.origin} https://cubism.live2d.com 'wasm-unsafe-eval'; style-src 'self' ${base.origin}; img-src 'self' https: blob: data:; connect-src 'self' ${base.origin} ${runtime.origin} ${entry.origin} https: blob:; object-src 'none'; base-uri 'none'; form-action 'none'`;
-      frame.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${esc(policy)}"><meta name="referrer" content="no-referrer"><link rel="stylesheet" href="${esc(new URL('frame.css',base))}"></head><body data-token="${esc(this.token)}" data-parent-origin="${esc(location.origin)}" data-runtime-base="${esc(runtime.href)}"><div id="canvas"></div><script type="module" src="${esc(new URL('frame.js',base))}"></script></body></html>`;
+      frame.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${esc(policy)}"><meta name="referrer" content="no-referrer"><link rel="stylesheet" href="${esc(new URL('frame.css',base))}"></head><body data-token="${esc(this.token)}" data-parent-origin="${esc(location.origin)}" data-runtime-base="${esc(runtime.href)}"><div id="canvas"></div><script type="module" src="${esc(new URL(mesh?'mesh-frame.js':'frame.js',base))}"></script></body></html>`;
     }else frame.src=frameURL.href;
     this.frame = frame;
     const promise = new Promise((resolve, reject) => {

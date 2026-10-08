@@ -1,3 +1,4 @@
+import {validateMeshProject,meshModel} from './mesh-project.js';
 export function publicUrl(value,base=globalThis.location?.href||import.meta.url){
   const url=new URL(value,base);
   const parent=new URL(base),loopback=u=>['localhost','127.0.0.1','[::1]'].includes(u.hostname);
@@ -12,7 +13,7 @@ export async function responseBytes(response,limit=64*1024*1024){
   try{while(true){const part=await reader.read();if(part.done)break;bytes+=part.value.length;if(bytes>limit)throw new Error('模型资源超过读取上限');chunks.push(part.value);}const out=new Uint8Array(bytes);let at=0;for(const c of chunks){out.set(c,at);at+=c.length;}return out;}finally{try{await reader.cancel();}catch{}reader.releaseLock();}
 }
 export async function loadModelSource(value,{base=globalThis.location?.href,signal}={}){
-  const entryUrl=publicUrl(value,base);if(!new URL(entryUrl).pathname.endsWith('.model3.json'))throw new Error('请使用完整 model3.json 入口，不是单个 moc3 文件');
+  const entryUrl=publicUrl(value,base);if(new URL(entryUrl).pathname.endsWith('.mesh2d.json')){const response=await fetch(entryUrl,{signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'}),project=validateMeshProject(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await responseBytes(response,64*1024*1024))));return meshModel(project,entryUrl);}if(!new URL(entryUrl).pathname.endsWith('.model3.json'))throw new Error('请使用完整 model3.json 入口，不是单个 moc3 文件');
   let config;
   try{const response=await fetch(entryUrl,{signal,credentials:'omit',redirect:'error',referrerPolicy:'no-referrer'});config=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await responseBytes(response,4*1024*1024)));}
   catch(error){if(error.name==='AbortError')throw error;if(error instanceof TypeError)throw new Error('模型 URL 无法读取：资源服务器需允许当前网站 CORS；不会使用公共代理');throw error;}
