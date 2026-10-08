@@ -71,6 +71,7 @@ export class Live2DViewer extends EventTarget {
     else if (type === 'loaded') {
       clearTimeout(this.timer); this.pending?.cleanup(); this.pending?.resolve(detail); this.pending = null;
       this.unavailableMotions=detail.unavailableMotions || [];this.unavailableExpressions=detail.unavailableExpressions||[];this.diagnostics=detail.diagnostics||[];this.lipSyncIds=detail.lipSyncIds||this.model.lipSyncIds||[];this.ready=true;this.emit(type, detail); if (this.paused || document.hidden) this.pause();
+    } else if (type === 'mesh-state' && this.model?.format==='mesh2d') { this.meshState=detail;this.emit(type,detail);
     } else if (type === 'error') this.fail(new Error(detail.message));
     else if (['hit','motion-start','expression-start','action-error','context-lost','context-restored','paused','resumed'].includes(type)) this.emit(type, detail);
   }
