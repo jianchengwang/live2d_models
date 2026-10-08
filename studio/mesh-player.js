@@ -1,4 +1,4 @@
-import {createLive2DWidget} from '../v2/widget.js';
+import {createLive2DWidget} from '../v2/widget.js?ui=2';
 import {validateMeshProject,meshModel} from '../v2/mesh-project.js';
 import {makeMeshDemo} from './mesh-demo.js';
 import {parameterMotion,basicBreath} from './mesh-editing.js';

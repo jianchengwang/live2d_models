@@ -1,4 +1,4 @@
-import {Live2DViewer} from './sdk.js';
+import {Live2DViewer} from './sdk.js?ui=2';
 import {loadModelSource} from './model-source.js';
 import {Conversation} from './conversation.js';
 import {BehaviorMap} from './behavior.js';

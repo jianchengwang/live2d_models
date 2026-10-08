@@ -47,12 +47,12 @@ export class Live2DViewer extends EventTarget {
     frame.title = '独立 Live2D 模型预览'; frame.className = 'viewer-frame';
     frame.setAttribute('sandbox','allow-scripts allow-same-origin');
     const mesh=model.format==='mesh2d';
-    const frameURL=new URL(mesh?'./mesh-frame.html':'./frame.html',import.meta.url);frameURL.searchParams.set('token',this.token);
+    const frameURL=new URL(mesh?'./mesh-frame.html?ui=2':'./frame.html',import.meta.url);frameURL.searchParams.set('token',this.token);
     if(this.options.embedded){
       const base=new URL('./',import.meta.url),runtime=new URL(this.options.runtimeBase||'../',base);
       const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
       const policy=`default-src 'none'; script-src 'self' ${base.origin} ${runtime.origin} https://cubism.live2d.com 'wasm-unsafe-eval'; style-src 'self' ${base.origin}; img-src 'self' https: blob: data:; connect-src 'self' ${base.origin} ${runtime.origin} ${entry.origin} https: blob:; object-src 'none'; base-uri 'none'; form-action 'none'`;
-      frame.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${esc(policy)}"><meta name="referrer" content="no-referrer"><link rel="stylesheet" href="${esc(new URL('frame.css',base))}"></head><body data-token="${esc(this.token)}" data-parent-origin="${esc(location.origin)}" data-runtime-base="${esc(runtime.href)}"><div id="canvas"></div><script type="module" src="${esc(new URL(mesh?'mesh-frame.js':'frame.js',base))}"></script></body></html>`;
+      frame.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${esc(policy)}"><meta name="referrer" content="no-referrer"><link rel="stylesheet" href="${esc(new URL('frame.css',base))}"></head><body data-token="${esc(this.token)}" data-parent-origin="${esc(location.origin)}" data-runtime-base="${esc(runtime.href)}"><div id="canvas"></div><script type="module" src="${esc(new URL(mesh?'mesh-frame.js?ui=2':'frame.js',base))}"></script></body></html>`;
     }else frame.src=frameURL.href;
     this.frame = frame;
     const promise = new Promise((resolve, reject) => {

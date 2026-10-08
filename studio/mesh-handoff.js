@@ -8,7 +8,7 @@ export function launchPreview(project,status){
   channel.onmessage=event=>{const message=event.data;if(message?.type==='ready'&&!sent){sent=true;channel.postMessage({type:'project',project});}
     else if(message?.type==='loaded'){close();status('当前项目已送到播放页，包含未保存的编辑。');}
     else if(message?.type==='failed'){close();status('播放页加载失败：'+String(message.message||'未知错误')+'；当前项目仍在编辑器中。');}};
-  const url=new URL('./mesh-player.html',import.meta.url);url.hash='session='+session;window.open(url.href,'_blank','noopener');status('正在把当前项目送到播放页，包含未保存的编辑；无需先下载。');return close;
+  const url=new URL('./mesh-player.html',import.meta.url);url.searchParams.set('ui','2');url.hash='session='+session;window.open(url.href,'_blank','noopener');status('正在把当前项目送到播放页，包含未保存的编辑；无需先下载。');return close;
 }
 export function receivePreview(session){
   if(!/^[a-f0-9-]{36}$/.test(session)||!globalThis.BroadcastChannel)return Promise.reject(new Error('项目交接链接无效或浏览器不支持；请在此页打开保存的项目文件'));
