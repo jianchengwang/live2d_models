@@ -1,1 +1,92 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"><link rel="icon" href="data:,"><link rel="stylesheet" href="./moc3-export.css"><title>本地 Live2D 技能包 · Studio</title></head><body><main><p><a href="./">← Studio</a> · <a href="./mesh-editor.html?ui=5">打开网页网格编辑器</a></p><h1>用自己的 Agent 准备素材，再继续编辑。</h1><p>技能包适用于你自己的 Codex、Claude Code 或 subagent。默认离线，不调用宿主 Agent、不上传素材、不安装依赖，也不包含仓库角色模型、私有素材或官方 Core。</p><p><a href="../skills/live2d-local-skill-0.2.1.zip" download>下载本地技能包 0.2.1 ZIP</a> · <a href="../skills/live2d-local-skill-0.2.1.zip.sha256">SHA-256 校验文件</a></p><p>原创四参数几何示例：<a href="./examples/independent-editable-project.zip" download>下载可编辑源项目 ZIP</a> · <a href="./examples/independent-runtime.zip" download>下载已验收运行时模型 ZIP</a> · <a href="./moc3-export.html?ui=5">在浏览器试导出</a>。包含近似呼吸、左右眼压缩、嘴部拉伸，无完整眼嘴或骨骼绑定。</p><p><b>图片入口：</b>已有分层 PNG + 角色 manifest 可直接生成可编辑源和候选模型包，PSD 是可选交换格式。单图须先用你实际可用的图像工具拆层、补全遮挡区域；没有工具时只提供明确的整图呼吸演示，不宣称完成眨眼或张嘴。完整本地命令、素材检查与工具提示已收入技能包。</p><ol><li>解压后先读 SKILL.md、README.md 和许可。脚本需要你已安装的 Node 22.12+；没有 npm 依赖。</li><li>按素材规范准备真实分层 PSD 或带角色、坐标及哈希的 PNG 图层。自动网格和眼嘴预设是起始近似，仍需检查真实像素。</li><li>生成或保存可编辑的 project.mesh2d.json，在网页编辑器打开，修改基础网格或参数端点，再保存并重开。</li><li>另行导出运行时模型包：moc3、model3.json、贴图、测试动作和验收记录。保留源项目，方便继续修改。</li></ol><p><b>当前导出范围：</b>1–4 个独立运动参数，扁平 ArtMesh；每个动态网格一个参数、两个线性关键形，静态网格单关键形。同网格多参数、旋转、层级、蒙版和物理会明确拒绝。技能的离线导出生成候选包，须由合法获得的官方 Core 和实际浏览器画面、动作检查验收。</p><p><b>两个文件用途不同：</b>mesh2d 源项目可以继续编辑；仅有 moc3 的既有模型可播放、调参数，不承诺恢复完整编辑工程或无损再次导出。当前网页打开 editable-project.zip 时，请先解压并选其中的 project.mesh2d.json。</p><p>脚本不自动下载 SDK。所需官方依赖由你合法取得并确认条款；MIT 实验写入器使用上游逆向格式资料，不是官方 Cubism 导出器。私有素材在远程网页中打开是一个单独的目的地决定，也可使用你自己的本地编辑器。</p></main></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="选对 Live2D 下载包：把本地技能交给 Codex 或 Claude Code，用可编辑源项目继续制作，用 MOC3 运行时包预览与接入网页。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./local-skill.css?guide=1">
+  <title>本地 Live2D 技能包与使用指南 · Studio</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Live2D Studio 首页"><span aria-hidden="true">◇</span> Live2D <b>STUDIO</b></a>
+    <nav aria-label="页面导航"><a href="#downloads">选下载包</a><a href="#start">开始使用</a><a href="#design">设计说明</a><a href="./mesh-editor.html?ui=5" class="editor-link">打开编辑器 ↗</a></nav>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="page-title">
+      <div><p class="eyebrow">LOCAL LIVE2D TOOLKIT</p><h1 id="page-title">从素材到模型，<br>先选对一个包。</h1><p class="lead">交给本地助理准备素材，在浏览器继续编辑，<br class="desktop-break">再把运行时模型带到你的网页。</p><div class="hero-actions"><a class="button primary" href="../skills/live2d-local-skill-0.2.1.zip" download>下载技能包 0.2.1 <span aria-hidden="true">↓</span></a><a class="hero-compare" href="#downloads">先看三个包的区别 ↓</a></div><div class="hero-meta"><span class="version">技能 v0.2.1</span><span>本地优先</span><span>无 npm 依赖</span><span>原创几何示例</span></div></div>
+      <aside class="hero-note"><span class="note-symbol" aria-hidden="true">↳</span><p>第一次来？</p><strong>想让 Agent 帮你制作，<br>从技能包开始。</strong><p>只想试编辑或播放，选对应示例即可。<br>三个 ZIP 承担不同工作。</p><a href="#downloads">找到适合你的下载 ↓</a></aside>
+    </section>
+
+    <section id="downloads" aria-labelledby="download-title">
+      <div class="section-heading"><div><p class="eyebrow">01 / CHOOSE YOUR PACKAGE</p><h2 id="download-title">你想做哪一步？</h2></div><p>技能是工具，源项目用于修改，运行时用于播放。</p></div>
+      <div class="download-grid">
+        <article class="download-card featured" aria-labelledby="skill-title">
+          <div class="card-top"><span class="file-icon" aria-hidden="true">↗</span><span class="tag">推荐起点 · v0.2.1</span></div>
+          <p class="card-audience">给 Codex / Claude Code 等本地助理</p><h3 id="skill-title">让助理帮你准备模型</h3><p class="card-description">一套本地制作技能、确定性脚本和素材规范。让你自己的助理从已备好的图层走到可编辑项目与候选 MOC3。</p>
+          <dl class="package-facts"><div><dt>包内有什么</dt><dd>SKILL.md、使用指南、脚本、素材 schema、原创样例和 MIT 写入器。</dd></div><div><dt>解压后做什么</dt><dd>让助理先读取 SKILL.md，再选择分层素材或单图入口。</dd></div><div><dt>你会得到什么</dt><dd>可编辑源 ZIP + 候选运行时 ZIP。新输出仍需 Core、画面和动作验收。</dd></div></dl>
+          <div class="card-bottom"><code class="filename">live2d-local-skill-0.2.1.zip</code><a class="button primary" href="../skills/live2d-local-skill-0.2.1.zip" download>下载技能包 0.2.1 <span aria-hidden="true">↓</span></a><div class="card-links"><span>168 KiB · Node 22.12+</span><a href="../skills/live2d-local-skill-0.2.1.zip.sha256">SHA-256 校验</a></div></div>
+        </article>
+        <article class="download-card" aria-labelledby="source-title">
+          <div class="card-top"><span class="file-icon" aria-hidden="true">◇</span><span class="tag">原创四参数示例</span></div>
+          <p class="card-audience">给想继续调整网格与动作的人</p><h3 id="source-title">打开源项目，继续编辑</h3><p class="card-description">五层原创几何素材，带近似呼吸、左右眼压缩和嘴层拉伸。用它熟悉编辑器的基础姿态与参数端点。</p>
+          <dl class="package-facts"><div><dt>包内有什么</dt><dd>project.mesh2d.json、项目清单和素材许可；图层像素嵌在 JSON 中。</dd></div><div><dt>解压后做什么</dt><dd>在网页网格编辑器选择“打开网格项目”，导入其中的 JSON。</dd></div><div><dt>你会得到什么</dt><dd>可继续修改、保存和重开的源项目。需要播放时，另行导出运行时。</dd></div></dl>
+          <div class="card-bottom"><code class="filename">independent-editable-project.zip</code><a class="button secondary" href="./examples/independent-editable-project.zip" download>下载可编辑源项目 <span aria-hidden="true">↓</span></a><div class="card-links"><span>15 KiB · mesh2d 源格式</span><a href="./mesh-editor.html?ui=5">打开编辑器 ↗</a></div></div>
+        </article>
+        <article class="download-card" aria-labelledby="runtime-title">
+          <div class="card-top"><span class="file-icon" aria-hidden="true">▷</span><span class="tag">已验收的示例模型</span></div>
+          <p class="card-audience">给想直接预览或接入网页的人</p><h3 id="runtime-title">加载模型，看看它动起来</h3><p class="card-description">同一原创几何示例的真实 MOC3 导出包。已通过官方 Core、画面对比、声明动作和 ZIP 重开检查。</p>
+          <dl class="package-facts"><div><dt>包内有什么</dt><dd>model.moc3、model.model3.json、PNG 贴图、测试动作、验收记录与许可。</dd></div><div><dt>下载后做什么</dt><dd>在 Studio 使用本地 ZIP 预览，或连同全部依赖部署到你的网页。</dd></div><div><dt>要继续修改？</dt><dd>此包没有 editable 源；保留旁边的源项目。仅有 MOC3 不保证恢复完整编辑工程。</dd></div></dl>
+          <div class="card-bottom"><code class="filename">independent-runtime.zip</code><a class="button secondary" href="./examples/independent-runtime.zip" download>下载运行时模型 <span aria-hidden="true">↓</span></a><div class="card-links"><span>560 KiB · MOC3 + 依赖</span><a href="./#choose">打开 Studio 预览 ↗</a></div></div>
+        </article>
+      </div>
+      <p class="download-note">这里公开的是原创几何测试素材。示例中的眼压缩和嘴拉伸属于近似形变，不能当作完整眨眼、张嘴或骨骼绑定。三个包均不包含官方 Core、SDK、Editor 或用户私有角色。</p>
+    </section>
+
+    <section id="start" aria-labelledby="start-title">
+      <div class="section-heading"><div><p class="eyebrow">02 / FIRST STEPS</p><h2 id="start-title">选完包，下一步怎么做？</h2></div><p>先跑原创样例，再换成有权使用的素材。</p></div>
+      <div class="start-panel">
+        <div class="agent-start"><span class="step-label">技能包</span><h3>解压，交给你自己的助理</h3><ol class="steps-list"><li>解压得到 <code>live2d-local/</code>，先读指南和许可。</li><li>把下面的指令发给你的 Codex、Claude Code 或其他本地助理。</li><li>检查样例输出后，再按素材规范准备自己的图层。</li></ol><blockquote>读取 ./live2d-local/SKILL.md 和 README.md。先用包内原创分层 PNG 样例生成可编辑源项目和候选运行时包；保留原件，输出到新目录。报告实际检查结果，不把候选包或角色名称当作验收通过。</blockquote><p class="small">可把文件夹放入你所用助理的技能目录，或直接让它读取 SKILL.md。无需宿主账号；脚本不会自动下载模型或调用图像 API。</p></div>
+        <div class="terminal-example"><div class="terminal-title"><span aria-hidden="true">● ● ●</span> 在 live2d-local 目录运行</div><pre><code>node scripts/image-input.mjs layers \
+  examples/independent-layers/layers.json \
+  demo-output</code></pre><div class="output-tree"><p>输出到全新目录 <code>demo-output/</code></p><dl><div><dt>editable/</dt><dd>project.mesh2d.json<br>editable-project.zip</dd></div><div><dt>runtime/</dt><dd>model.moc3 + 贴图 + 动作<br>candidate-model.zip</dd></div></dl><p class="small">候选包生成 ≠ 视觉验收通过。继续在兼容编辑器与合法运行时中检查。</p></div><a href="../skills/live2d-local/IMAGE-ENTRYPOINTS.md">查看完整命令与图片入口说明 ↗</a></div>
+      </div>
+      <div class="quick-paths"><article><span class="step-label">可编辑源项目</span><h3>打开 → 修改 → 保存</h3><ol class="steps-list"><li>解压 ZIP，找到 <code>project.mesh2d.json</code>。</li><li>在<a href="./mesh-editor.html?ui=5">网格编辑器</a>打开 JSON，修改基础网格或参数端点。</li><li>保存项目、重开核对；使用“实验性 MOC3 导出”另行生成运行时。</li></ol></article><article><span class="step-label">运行时模型</span><h3>导入 → 播放 → 接入</h3><ol class="steps-list"><li>在 <a href="./#choose">Studio</a> 展开“使用自己的模型 URL 或本地 ZIP”。</li><li>选择运行时 ZIP，确认本地使用权，点击“本地预览”。</li><li>试播 <code>Test / 0</code> 动作；部署时保留 model3.json 引用的全部依赖。</li></ol></article></div>
+    </section>
+
+    <section id="design" aria-labelledby="design-title">
+      <div class="section-heading"><div><p class="eyebrow">03 / HOW IT WORKS</p><h2 id="design-title">像素、源项目与运行时，各走一步。</h2></div><p>保留源工程，运行时作为另一份交付物。</p></div>
+      <div class="input-routes"><article><span class="route-mark">A</span><div><h3>已有分层 PNG 或 PSD</h3><p>PNG 图层加角色 manifest 可直接进入流程。已有 PSD 可经浏览器支持的平面 PSD 导入器保存为 mesh2d；CLI 不解析 PSD。</p></div></article><article><span class="route-mark">B</span><div><h3>单张图片 / PNG</h3><p>先用你实际可用、已授权的图像工具分层并补全遮挡区域，再检查真实 RGBA 图层。PSD 是可选交换格式，内部可以一直用 PNG + manifest。</p></div></article></div>
+      <ol class="workflow" aria-label="制作与验证流程"><li><span>01</span><h3>准备真实图层</h3><p>分割或生成部件，补出隐藏区域；没有工具则报告缺失步骤。</p></li><li><span>02</span><h3>记录角色与坐标</h3><p>role manifest 保存顺序、偏移、最终 PNG 哈希、许可与参数语义。</p></li><li><span>03</span><h3>网格与关键形</h3><p>依据 alpha 支持范围生成规则网格，建立并检查两个端点形状。</p></li><li><span>04</span><h3>保存可编辑源</h3><p>mesh2d JSON 保留图层、像素、网格与端点，供后续编辑和重开。</p></li><li><span>05</span><h3>有限 MOC3 写入</h3><p>实验 MIT 写入器生成真实 MOC3、model3.json、纹理图集与测试动作。</p></li><li><span>06</span><h3>验收与预览</h3><p>官方 Core 校验、源画面对比、参数组合、真实动作及 ZIP 重开。</p></li></ol>
+      <aside class="fallback-note"><strong>没有分层或补图工具，也可以先试一个小演示。</strong><p><code>single-demo</code> 只让一张整图做呼吸形变，不拆层、不补隐藏区域，也不完成真实眨眼或嘴内部。把单 PNG 装进 PSD，仍然是一张整图。<code>tool-request</code> 只输出供现有工具使用的提示与数据协议，不自动执行生图。</p></aside>
+      <div class="design-details"><article><h3>为什么这样设计？</h3><p>素材规范让工具之间能交接；共享画布坐标让各层对齐；可编辑源让你不用为一次修改丢掉工程；独立运行时包用于预览和部署。每一步都有可检查的文件，失败时能指出具体阶段。</p><p>参考 <a href="https://arxiv.org/html/2607.27348v1" target="_blank" rel="noopener noreferrer">Bunraku §3、§5 与附录 G ↗</a> 的部件分类、RGBA 隐藏区补全、alpha 几何、跨层协调关键姿态和运行时插值思路。本技能以现有图像工具或手工素材、确定性网格和预设替代论文的训练组件；它不是论文模型或复现实验，也不捆绑论文图片、权重或数据。</p></article><article><h3>当前能够导出的边界</h3><ul class="capability-list"><li><strong>1–4 个独立运动参数</strong><span>每个网格最多一个动态参数；一个参数可以驱动多个网格。</span></li><li><strong>扁平 ArtMesh、线性端点</strong><span>最多16个可见网格、8192总顶点、4096像素纹理图集。</span></li><li><strong>同网格叠加、旋转、层级、蒙版和物理尚未支持</strong><span>超出边界会拒绝，不静默丢动作；完整眼嘴、关节招手与 cmo3 工程不在当前输出范围。</span></li></ul><a class="text-link" href="./spec/MOC3-EXPORT-SCOPE.md">查看完整导出范围 ↗</a></article></div>
+    </section>
+
+    <section id="package" aria-labelledby="package-title">
+      <div class="section-heading"><div><p class="eyebrow">04 / INSIDE THE SKILL</p><h2 id="package-title">助理读什么，脚本负责什么？</h2></div><p>本地脚本、固定职责、明确的输入输出。</p></div>
+      <div class="package-panel"><div class="package-tree"><h3>live2d-local/</h3><pre><code>SKILL.md / README.md
+IMAGE-ENTRYPOINTS.md
+IMAGE-TO-LAYERS-PROMPT.md
+AGENT-PROMPTS.md
+PROVENANCE.json / LICENSE
+scripts/
+examples/
+studio/spec/
+vendor/experimental-moc3/</code></pre><p class="small">素材 schema、PNG 样例与 MIT 写入器都在包内。官方 Core 由你合法取得，包中不含官方运行时二进制。</p><a href="../skills/live2d-local/README.md">阅读技能 README ↗</a></div><dl class="script-map"><div><dt><code>image-input.mjs</code><span>流程入口</span></dt><dd><code>layers</code> 从分层 manifest 生成两个包；<code>single-demo</code> 做整图呼吸；<code>tool-request</code> 生成图像工具请求。</dd></div><div><dt><code>materials.mjs</code><span>素材检查</span></dt><dd>检查路径、PNG、文件及像素哈希、角色和坐标，依据 alpha 支持范围生成带边缘余量的规则网格。</dd></div><div><dt><code>cli.mjs</code><span>源项目与导出</span></dt><dd><code>inspect</code> 检查项目；<code>materials</code> 建立源；<code>source</code> 打包可编辑工程；<code>export</code> 生成候选运行时。</dd></div><div><dt><code>verify-core.mjs</code><span>运行时检查</span></dt><dd>使用你提供的固定版本官方 Core，核对真实加载、拓扑、UV、层序与参数形变；不能代替画面和动作检查。</dd></div><div><dt><code>png.mjs / zip.mjs</code><span>本地文件处理</span></dt><dd>有预算限制的 PNG 解码、图集编码及 ZIP 打包。脚本没有 npm 依赖或自动安装步骤。</dd></div></dl></div>
+      <div class="local-note"><span aria-hidden="true">◇</span><p><strong>默认离线、本地处理。</strong> 脚本不会调用宿主 Agent、上传素材或绑定某个付费 API。外部生图取决于你的现有工具和授权；私有素材需要另行确认处理目的地。官方 SDK / Editor 的获取与条款由你确认；实验写入器不是官方 Cubism 导出器。</p></div>
+    </section>
+
+    <section id="help" aria-labelledby="help-title">
+      <div class="section-heading"><div><p class="eyebrow">05 / WHEN SOMETHING STOPS</p><h2 id="help-title">遇到问题，先定位这一层。</h2></div><a href="https://github.com/jianchengwang/live2d_models/issues" target="_blank" rel="noopener noreferrer">反馈问题 ↗</a></div>
+      <div class="faq"><details><summary>下载了 ZIP，编辑器为什么打不开？</summary><p>源项目 ZIP 先解压，再在“打开网格项目”中选择 <code>project.mesh2d.json</code>。运行时 ZIP 则在 Studio 的本地模型入口打开。技能 ZIP 是给本地助理和 Node 脚本用的，不是一个可直接播放的模型。</p></details><details><summary>重复运行提示“Output already exists”，或 Node 运行失败？</summary><p>每次选择一个全新的输出目录，原件和已有输出不会被覆盖。脚本需要已安装的 Node 22.12+。不支持的 PNG 类型，请用自己的本地图像工具导出为8位 RGB/RGBA、非交错 PNG；无需运行 npm install。</p></details><details><summary>图层哈希、坐标或角色检查失败？</summary><p>修改 PNG 后，重新记录最终文件 SHA-256；角色、偏移与画布尺寸须和真实文件一致。检查安全相对路径、唯一图层 ID 及明确的眼睛参数语义。重复整张合成图不能冒充拆层，视觉审批和隐藏区补全也不能由名字证明。</p></details><details><summary>为什么眨眼像压缩、张嘴像拉伸，或导出被拒？</summary><p>开放眼补丁或闭嘴线只提供近似形变，缺少的闭眼线、眼睑遮挡和口腔内部须先补素材。导出还会检查每个网格的动态驱动数、参数数量及结构边界。不要删掉失败检查来换取“成功”；先调整素材或网格绑定。</p></details><details><summary>生成 MOC3 后，怎样确认真的可用？</summary><p>Core 通过只是第一步。检查贴图方向、轮廓和遮挡，比较默认值、端点组合及中点（单参数为0/0.5/1），播放声明动作，并保存、重开 ZIP。空白、静态画面或文件头正确都不是完整验收。包中不含 Core；使用合法取得的匹配运行时。</p></details></div>
+      <p class="feedback-note">反馈时说明你用了哪个包、系统与 Node 版本、失败阶段、错误文本和可分享的截图或合成复现。请勿将私有角色、密钥或未获授权的素材附到公开 Issues。</p>
+    </section>
+    <section class="closing"><div><p class="eyebrow">READY WHEN YOU ARE</p><h2>先用原创样例，走完一遍。</h2><p>拿到可编辑源，确认运行时，再开始自己的角色。</p></div><a class="button primary" href="../skills/live2d-local-skill-0.2.1.zip" download>下载技能包 0.2.1 <span aria-hidden="true">↓</span></a></section>
+  </main>
+  <footer><a href="./">← 返回 Studio</a><span>技能 v0.2.1 · 原创样例 · 本地优先</span><a href="https://github.com/jianchengwang/live2d_models" target="_blank" rel="noopener noreferrer">查看项目 ↗</a></footer>
+</body>
+</html>
