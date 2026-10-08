@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {containTransform,drawableBounds} from '../../v2/fit.js';
-import {publicConfig,embedCode,bootstrapJS,buildEmbedPackage,zipFiles} from '../../v2/export.js';
+import {publicConfig,embedCode,bootstrapJS,buildEmbedPackage,zipFiles,runtimeFiles} from '../../v2/export.js';
 import {loadModelSource,publicUrl,responseBytes} from '../../v2/model-source.js';
 import {Conversation} from '../../v2/conversation.js';
 
@@ -26,7 +26,7 @@ test('exports whitelist public configuration and escape inline script injection'
  assert.ok(!JSON.stringify(config).includes(raw.apiKey));assert.match(embedCode(config,'https://site.example/v2/widget.js'),/\\u003c\/script>/);
  assert.ok(!bootstrapJS(config,'./widget.js').includes(raw.apiKey));
  const packaged=await buildEmbedPackage(raw,{fetchFile:async name=>'// '+name});
- assert.equal(packaged.files.size,30);for(const path of ['cubism53-viewer.js','cubism53-framework.js','cubism53-shaders.js','vendor/cubism53/LICENSE.md','vendor/cubism53/provenance.json'])assert.ok(packaged.files.has(path),path);for(const [path,data] of packaged.files){assert.ok(!path.endsWith('.moc3'));assert.ok(!path.includes('cubismcore'));assert.ok(!String(data).includes(raw.apiKey));}
+ assert.equal(packaged.files.size,31);for(const path of ['cubism53-viewer.js','cubism53-framework.js','cubism53-shaders.js','vendor/cubism53/LICENSE.md','vendor/cubism53/provenance.json'])assert.ok(packaged.files.has(path),path);for(const [path,data] of packaged.files){assert.ok(!path.endsWith('.moc3'));assert.ok(!path.includes('cubismcore'));assert.ok(!String(data).includes(raw.apiKey));}
  assert.equal(JSON.parse(packaged.files.get('config.json')).modelUrl,modelUrl);
  const bytes=new Uint8Array(await packaged.blob.arrayBuffer());assert.equal(new DataView(bytes.buffer).getUint32(0,true),0x04034b50);assert.equal(new DataView(bytes.buffer).getUint16(12,true),0x21);
  assert.throws(()=>publicConfig({...raw,modelUrl:base+'single.moc3'},{base}));assert.throws(()=>publicConfig({...raw,runtimeBase:base+'runtime.js'},{base}));
@@ -62,3 +62,5 @@ test('visitor supplied export preserves paths, requires opt-in, and cancels with
   const controller=new AbortController();controller.abort();await assert.rejects(buildEmbedPackage(raw,{signal:controller.signal,fetchFile:async()=>''}),{name:'AbortError'});
  }finally{URL.revokeObjectURL(url);}
 });
+
+test('portable mesh runtime retains real filenames and includes its material role dependency',async()=>{assert.ok(runtimeFiles.every(name=>!/[?#]/.test(name)));const packaged=await buildEmbedPackage(raw,{fetchFile:async()=>''});assert.ok(packaged.files.has('material-contract.js'));assert.ok([...packaged.files.keys()].every(name=>!/[?#]/.test(name)));});

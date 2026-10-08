@@ -30,3 +30,5 @@ test('starter binding preserves existing authored keys and material manifest val
 });
 
 test('a valid old project at the parameter limit can still load without losing its authored parameters',()=>{const p=make();p.parameters=Array.from({length:16},(_,i)=>({id:'Custom'+i,name:'Custom',min:0,max:1,default:0}));const before=JSON.stringify(p.parameters);assert.equal(ensureActionParameters(p,{allowFull:true}),0);assert.equal(JSON.stringify(p.parameters),before);});
+
+test('a changed occluding layer invalidates the earlier visual review',()=>{const p=make();bindAllBasics(p);p.actionReviews={breath:actionSignature(p,'breath')};assert.equal(actionStatus(p,'breath').state,'usable');p.layers[1].opacity=0;assert.equal(actionStatus(p,'breath').state,'approximate');});
