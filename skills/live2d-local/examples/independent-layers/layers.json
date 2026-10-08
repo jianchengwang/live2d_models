@@ -1,0 +1,112 @@
+{
+  "format": "studio-png-layers",
+  "version": 1,
+  "name": "Original PNG-layer approximation sample",
+  "width": 256,
+  "height": 256,
+  "license": "Original geometric sample pixels and editable source: Copyright (c) 2026 Live2D Studio contributors. This covers this five-layer geometric example only, not user projects or repository character artwork. This is not Live2D official sample art.\n\nMIT License\n\nCopyright (c) 2026 Live2D Studio contributors\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+  "parameters": [
+    {
+      "id": "ParamBreath",
+      "name": "\u547c\u5438",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "id": "ParamEyeLOpen",
+      "name": "\u89d2\u8272\u5de6\u773c\u5f00\u5408",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "semantics": "eye-open-01"
+    },
+    {
+      "id": "ParamEyeROpen",
+      "name": "\u89d2\u8272\u53f3\u773c\u5f00\u5408",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "semantics": "eye-open-01"
+    },
+    {
+      "id": "ParamMouthOpenY",
+      "name": "\u5f20\u5634",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    }
+  ],
+  "layers": [
+    {
+      "id": "back",
+      "name": "Static backdrop",
+      "file": "back.png",
+      "sha256": "680d2e94e061f8863ed8a9fea6252951fc487252e51b238b77c412fc9c453d30",
+      "left": 0,
+      "top": 0,
+      "role": "other",
+      "opacity": 1
+    },
+    {
+      "id": "body",
+      "name": "Geometric body",
+      "file": "body.png",
+      "sha256": "cf737ff67679d583a30fa1d2922fa19d48cf1f0729c8b8f41c9c5af7b3bb8ff7",
+      "left": 48,
+      "top": 128,
+      "role": "torso.clothing",
+      "opacity": 1,
+      "bind": {
+        "parameterId": "ParamBreath",
+        "kind": "breath",
+        "strength": 0.04
+      }
+    },
+    {
+      "id": "left",
+      "name": "Geometric character-left eye",
+      "file": "left.png",
+      "sha256": "d2d2fff9b0f30a00a3945ff0206b144016fcb6974d378c8f2e2a4fd2e9cb27d1",
+      "left": 150,
+      "top": 58,
+      "role": "eye.left.open_patch",
+      "opacity": 1,
+      "bind": {
+        "parameterId": "ParamEyeLOpen",
+        "kind": "blink",
+        "strength": 0.04
+      }
+    },
+    {
+      "id": "right",
+      "name": "Geometric character-right eye",
+      "file": "right.png",
+      "sha256": "d2d2fff9b0f30a00a3945ff0206b144016fcb6974d378c8f2e2a4fd2e9cb27d1",
+      "left": 68,
+      "top": 58,
+      "role": "eye.right.open_patch",
+      "opacity": 1,
+      "bind": {
+        "parameterId": "ParamEyeROpen",
+        "kind": "blink",
+        "strength": 0.04
+      }
+    },
+    {
+      "id": "mouth",
+      "name": "Geometric mouth patch",
+      "file": "mouth.png",
+      "sha256": "099db5ac8827e9aa95c15812e9cfb2e19f25656a6325bac9c5e7314b386836c6",
+      "left": 102,
+      "top": 102,
+      "role": "mouth.closed_patch",
+      "opacity": 1,
+      "bind": {
+        "parameterId": "ParamMouthOpenY",
+        "kind": "mouth",
+        "strength": 0.04
+      }
+    }
+  ]
+}

@@ -1,1 +1,13 @@
-{"name": "live2d-local-skill", "version": "0.2.0", "private": true, "type": "module", "engines": {"node": ">=22.12.0"}, "scripts": {"test": "node --test tests/*.test.mjs"}, "dependencies": {}}
+{
+  "name": "live2d-local-skill",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {}
+}

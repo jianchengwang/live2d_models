@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": "0.2.0",
+  "packageVersion": "0.2.1",
   "upstream": {
     "url": "https://github.com/MangoLion/stretchystudio",
     "commit": "24a83a27ba43e43e9d2e3de5e33994594e6199c2",
@@ -19,5 +19,6 @@
     "python": [],
     "node": ">=22.12.0"
   },
-  "capability": "1\u20134 independent dynamic 0\u20131 parameters, at most one effective driver per mesh; static single-key/null-band fallback"
+  "capability": "1\u20134 independent dynamic 0\u20131 parameters, at most one effective driver per mesh; static single-key/null-band fallback",
+  "imageInput": "Deterministic PNG layers manifest / alpha-support grid; optional agent tool request; whole-image breath-only fallback. No trained decomposer or joint regressor."
 }

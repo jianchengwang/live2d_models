@@ -1,4 +1,4 @@
-# Local Live2D preparation and export skill 0.2.0
+# Local Live2D preparation and export skill 0.2.1
 
 Use this folder with your own Codex, Claude Code, or subagent. No host service or account is required. Node 22.12+ is required; there are no npm dependencies or install steps. The package includes original single-parameter and four-parameter geometric examples and a pinned MIT experimental writer. It includes no repository character models, private assets, Cubism Core, Editor, or SDK binaries. Obtain any required SDK legally from Live2D and decide its terms yourself. See PROVENANCE.json and both licenses. The upstream layout has reverse-engineering references; this is not a clean-room writer or an official Cubism exporter.
 
@@ -34,3 +34,5 @@ Default actions have no network or upload. No dependency fallback exists. Unsupp
 The checked-in original synthetic source was already tested with the official Core 6 runtime and actual browser rendering/motion. The offline CLI pipeline is separately tested; browser evidence belongs to the exact output hash, not every future project. A runtime source comparison must pass before calling a new model visually verified.
 
 For the original four-parameter example, use `studio/spec/moc3-independent.mesh2d.json` with `ParamBreath` as the initial preview parameter. Export retains all four actions. Core validation tests defaults, every endpoint combination and all midpoints (18 states for four parameters). The model declares a fixed `flat-independent-v1` runtime profile for the tested Core 6 path; it does not select an arbitrary runtime URL.
+
+Image entrypoints are in IMAGE-ENTRYPOINTS.md: `image-input.mjs layers` creates editable/runtime candidate packages from checked PNG layers; `tool-request` emits a data-only request for real available image tools; `single-demo` explicitly creates a whole-image breath-only demonstration. PSD is optional. None includes automatic image splitting, hidden-fill inference or a full character rig.
