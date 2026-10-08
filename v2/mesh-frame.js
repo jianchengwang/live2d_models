@@ -1,5 +1,5 @@
-import {validateMeshProject,meshPositions,playbackValues} from './mesh-project.js';
-import {createMeshRenderer} from './mesh-renderer.js';
+import {validateMeshProject,meshPositions,playbackValues} from './mesh-project.js?ui=3';
+import {createMeshRenderer} from './mesh-renderer.js?ui=3';
 const boot=document.body.dataset,token=boot.token||new URLSearchParams(location.search).get('token'),origin=boot.parentOrigin||location.origin;
 const send=(type,detail={})=>parent.postMessage({token,type,detail},origin);
 let project,renderer,canvas,frame,started=false,paused=false,view={zoom:1,x:0,y:0},lip=0,auto={breath:true,blink:true},overrides={},currentValues={},lastState=-Infinity;

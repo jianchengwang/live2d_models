@@ -1,4 +1,5 @@
 // Open, editable webpage mesh project. This is not a Cubism moc3 binary.
+import {MATERIAL_ROLES,eyeOpen01} from './material-contract.js?ui=3';
 export const MESH_FORMAT='studio-mesh2d';
 export function gridMesh(left,top,width,height,segments=8){
   const positions=[],uvs=[],indices=[];
@@ -13,7 +14,7 @@ export function validateMeshProject(raw){
   if(raw?.format!==MESH_FORMAT||raw.version!==1)bad('请选择 Studio 网格项目 v1');
   if(!Number.isInteger(raw.width)||!Number.isInteger(raw.height)||raw.width<1||raw.height<1||raw.width>4096||raw.height>4096)bad('项目画布尺寸无效');
   if(!Array.isArray(raw.layers)||!raw.layers.length||raw.layers.length>64||!Array.isArray(raw.parameters)||raw.parameters.length>16)bad('图层或参数数量无效');
-  const ids=new Set(),parameters=raw.parameters.map(p=>{if(!/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(p?.id)||ids.has(p.id)||p.min!==0||p.max!==1||!finite(p.default)||p.default<0||p.default>1)bad('参数需唯一 ID、范围 0–1');ids.add(p.id);return {id:p.id,name:cleanName(p.name,p.id),min:0,max:1,default:p.default};});
+  const ids=new Set(),parameters=raw.parameters.map(p=>{if(!/^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(p?.id)||ids.has(p.id)||p.min!==0||p.max!==1||!finite(p.default)||p.default<0||p.default>1)bad('参数需唯一 ID、范围 0–1');ids.add(p.id);const next={id:p.id,name:cleanName(p.name,p.id),min:0,max:1,default:p.default};if(p.semantics!==undefined){if(!['eye-open-01','eye-close-01'].includes(p.semantics))bad('眼睛参数语义无效');next.semantics=p.semantics;}return next;});
   let textureBytes=0,texturePixels=0;
   const layerIds=new Set(),layers=raw.layers.map((l,index)=>{
     if(typeof l?.id!=='string'||l.id.length>80||layerIds.has(l.id))bad('图层 ID 无效');layerIds.add(l.id);
@@ -25,24 +26,28 @@ export function validateMeshProject(raw){
     if(!mesh.positions.every(v=>finite(v))||!mesh.uvs.every(v=>finite(v)&&v>=0&&v<=1)||!mesh.indices.every(v=>Number.isInteger(v)&&v>=0&&v<n/2))bad('网格坐标或索引无效');
     const bindings={};for(const [id,keys]of Object.entries(l.bindings||{})){if(!ids.has(id)||!Array.isArray(keys)||keys.length!==2||keys[0].value!==0||keys[1].value!==1||keys.some(k=>!Array.isArray(k.positions)||k.positions.length!==n||!k.positions.every(v=>finite(v))))bad('参数端点与网格不一致');bindings[id]=keys.map(k=>({value:k.value,positions:[...k.positions]}));}
     if(!finite(l.opacity,1)||l.opacity<0)bad('图层透明度无效');
-    return {id:l.id,name:cleanName(l.name,'图层 '+(index+1)),width:w,height:h,texture:l.texture,visible:l.visible!==false,opacity:l.opacity,mesh:{positions:[...mesh.positions],uvs:[...mesh.uvs],indices:[...mesh.indices]},bindings};
+    const result={id:l.id,name:cleanName(l.name,'图层 '+(index+1)),width:w,height:h,texture:l.texture,visible:l.visible!==false,opacity:l.opacity,mesh:{positions:[...mesh.positions],uvs:[...mesh.uvs],indices:[...mesh.indices]},bindings};
+    if(l.role!==undefined){if(!MATERIAL_ROLES.includes(l.role))bad('材料角色无效');result.role=l.role;result.roleSource=['inferred','manual','manifest'].includes(l.roleSource)?l.roleSource:'manual';result.occlusionComplete=l.occlusionComplete===true;}
+    if(l.pivot!==undefined){if(!finite(l.pivot?.x)||!finite(l.pivot?.y)||l.pivot.x<0||l.pivot.y<0||l.pivot.x>raw.width||l.pivot.y>raw.height)bad('支点超出画布');result.pivot={x:l.pivot.x,y:l.pivot.y};}if(l.contentBounds){const b=l.contentBounds;if(![b.left,b.top,b.width,b.height].every(v=>finite(v))||b.width<=0||b.height<=0)bad('内容边界无效');result.contentBounds={left:b.left,top:b.top,width:b.width,height:b.height};}return result;
   });
-  return {format:MESH_FORMAT,version:1,name:cleanName(raw.name,'我的网格角色'),width:raw.width,height:raw.height,layers,parameters};
+  const result={format:MESH_FORMAT,version:1,name:cleanName(raw.name,'我的网格角色'),width:raw.width,height:raw.height,layers,parameters};
+  if(raw.sourceAsset){if(!/^[a-f0-9]{64}$/.test(raw.sourceAsset.sha256||'')||!['psd','png'].includes(raw.sourceAsset.kind))bad('原素材哈希记录无效');result.sourceAsset={sha256:raw.sourceAsset.sha256,kind:raw.sourceAsset.kind};}
+  if(raw.actionReviews){result.actionReviews={};for(const id of ['breath','blink','mouth'])if(/^[a-f0-9]{1,8}$/.test(raw.actionReviews[id]||''))result.actionReviews[id]=raw.actionReviews[id];}return result;
 }
 export function meshPositions(layer,values={}){
   const result=layer.mesh.positions.slice();
   for(const [id,keys]of Object.entries(layer.bindings)){const v=Math.max(0,Math.min(1,Number(values[id])||0));for(let i=0;i<result.length;i++)result[i]+=keys[0].positions[i]*(1-v)+keys[1].positions[i]*v-layer.mesh.positions[i];}
   return result;
 }
-export function bindPreset(layer,id,kind,strength=.04){
+export function bindPreset(layer,id,kind,strength=.04,{semantics}={}){
   const base=layer.mesh.positions,max=base.slice(),xs=base.filter((_,i)=>i%2===0),ys=base.filter((_,i)=>i%2===1),left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys),cx=(left+right)/2,cy=(top+bottom)/2;
   for(let i=0;i<max.length;i+=2){const x=base[i],y=base[i+1];if(kind==='breath'){const weight=Math.max(0,1-(y-top)/(bottom-top));max[i]=x+(x-cx)*strength*weight;max[i+1]=y-(bottom-top)*strength*weight;}
     else if(kind==='blink')max[i+1]=cy+(y-cy)*.06;
-    else if(kind==='mouth')max[i+1]=cy+(y-cy)*(1+strength*8);
+    else if(kind==='mouth'){const center=layer.contentBounds?layer.contentBounds.top+layer.contentBounds.height/2:cy;max[i+1]=center+(y-center)*(1+strength*8);}
     else if(kind==='sway')max[i]=x+(bottom-top)*strength*(1-(y-top)/(bottom-top));}
-  layer.bindings[id]=[{value:0,positions:base.slice()},{value:1,positions:max}];return layer;
+  const reverse=kind==='blink'&&semantics==='eye-open-01';layer.bindings[id]=[{value:0,positions:reverse?max:base.slice()},{value:1,positions:reverse?base.slice():max}];return layer;
 }
 export function playbackValues(project,time,{breath=true,blink=false,mouth=0}={}){
-  return Object.fromEntries(project.parameters.map(p=>[p.id,(/breath/i.test(p.id)&&breath)?(1-Math.cos(time*2))/2:(/eye.*open/i.test(p.id)&&blink)?(time%4<.16?1:0):/mouth.*open/i.test(p.id)?mouth:p.default]));
+  return Object.fromEntries(project.parameters.map(p=>[p.id,(/breath/i.test(p.id)&&breath)?(1-Math.cos(time*2))/2:(/eye.*open/i.test(p.id)&&blink)?(eyeOpen01(p)?(time%4<.16?0:1):(time%4<.16?1:0)):/mouth.*open/i.test(p.id)?mouth:p.default]));
 }
 export function meshModel(project,entryUrl,{localImport=false}={}){return {id:'mesh2d-'+project.name,name:project.name,format:'mesh2d',entryUrl,project,localImport,files:[],motions:[],expressions:[],lipSyncIds:project.parameters.filter(p=>/mouth.*open/i.test(p.id)).map(p=>p.id),validation:{referencesComplete:true},license:{note:'像素与项目的使用权限由素材所有者决定；本地导入不上传。'}};}

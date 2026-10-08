@@ -1,0 +1,27 @@
+{
+  "format": "character-layer-manifest",
+  "version": 1,
+  "asset": {"psd": "character.psd", "sha256": null, "width": 1024, "height": 1536, "coordinates": "canvas-pixels-x-right-y-down"},
+  "layers": [
+    {"id": "body", "psdName": "torso_clothing", "role": "torso.clothing", "restVisible": true, "occlusionComplete": false},
+    {"id": "face", "psdName": "head_face_fill", "role": "head.face_fill", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeLWhite", "psdName": "eye_left_sclera", "role": "eye.left.sclera", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeLIris", "psdName": "eye_left_iris", "role": "eye.left.iris", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeLUpper", "psdName": "eye_left_upper_lid", "role": "eye.left.upper_lid", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeLLower", "psdName": "eye_left_lower_lid", "role": "eye.left.lower_lid", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeLClosed", "psdName": "eye_left_closed_line", "role": "eye.left.closed_line", "restVisible": false, "occlusionComplete": false},
+    {"id": "eyeRWhite", "psdName": "eye_right_sclera", "role": "eye.right.sclera", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeRIris", "psdName": "eye_right_iris", "role": "eye.right.iris", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeRUpper", "psdName": "eye_right_upper_lid", "role": "eye.right.upper_lid", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeRLower", "psdName": "eye_right_lower_lid", "role": "eye.right.lower_lid", "restVisible": true, "occlusionComplete": false},
+    {"id": "eyeRClosed", "psdName": "eye_right_closed_line", "role": "eye.right.closed_line", "restVisible": false, "occlusionComplete": false},
+    {"id": "mouthUpper", "psdName": "mouth_outer_upper", "role": "mouth.outer_upper", "restVisible": true, "occlusionComplete": false},
+    {"id": "mouthLower", "psdName": "mouth_outer_lower", "role": "mouth.outer_lower", "restVisible": true, "occlusionComplete": false},
+    {"id": "mouthInside", "psdName": "mouth_inner", "role": "mouth.inner", "restVisible": false, "occlusionComplete": false},
+    {"id": "upperArmL", "psdName": "arm_left_upper", "role": "arm.left.upper", "restVisible": true, "occlusionComplete": false, "parentId": "body", "pivot": {"x": 710, "y": 600}},
+    {"id": "forearmL", "psdName": "arm_left_forearm", "role": "arm.left.forearm", "restVisible": true, "occlusionComplete": false, "parentId": "upperArmL", "pivot": {"x": 740, "y": 870}},
+    {"id": "handL", "psdName": "arm_left_hand", "role": "arm.left.hand", "restVisible": true, "occlusionComplete": false, "parentId": "forearmL", "pivot": {"x": 750, "y": 1090}}
+  ],
+  "requestedActions": ["breath", "blink", "mouth", "wave"],
+  "review": {"visualApproved": false, "notes": "Structure example only. Pivots are illustrative. Final generation must provide real pixels and actual PSD hash; inspect occlusion before approval."}
+}

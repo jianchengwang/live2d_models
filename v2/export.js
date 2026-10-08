@@ -43,7 +43,7 @@ export function zipFiles(files){
   }
   const size=central.reduce((n,c)=>n+c.length,0),end=new Uint8Array(22),v=new DataView(end.buffer);v.setUint32(0,0x06054b50,true);v.setUint16(8,files.size,true);v.setUint16(10,files.size,true);v.setUint32(12,size,true);v.setUint32(16,offset,true);return new Blob([...local,...central,end],{type:'application/zip'});
 }
-export const runtimeFiles=['widget.js','widget.css','sdk.js','frame.js','frame.html','frame.css','runtime.json','fit.js','model-source.js','conversation.js','behavior.js','speech.js','motion-validation.js','model-compatibility.js','importer.js','import-worker.js','cubism53-viewer.js','cubism53-framework.js','cubism53-shaders.js','../vendor/cubism53/LICENSE.md','../vendor/cubism53/provenance.json','mesh-frame.js','mesh-frame.html','mesh-project.js','mesh-renderer.js'];
+export const runtimeFiles=['widget.js','widget.css','sdk.js','frame.js','frame.html','frame.css','runtime.json','fit.js','model-source.js','conversation.js','behavior.js','speech.js','motion-validation.js','model-compatibility.js','importer.js','import-worker.js','cubism53-viewer.js','cubism53-framework.js','cubism53-shaders.js','../vendor/cubism53/LICENSE.md','../vendor/cubism53/provenance.json','mesh-frame.js','mesh-frame.html','mesh-project.js?ui=3','mesh-renderer.js?ui=3'];
 export async function buildEmbedPackage(raw,{localPackage,includeLocalModel=false,signal,fetchFile}={}){
   if(includeLocalModel&&!localPackage)throw new Error('没有本地模型包可导出');
   const config=publicConfig({...raw,modelUrl:includeLocalModel?'https://model.example/model.model3.json':raw.modelUrl,models:includeLocalModel?[]:raw.models});

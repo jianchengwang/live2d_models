@@ -84,7 +84,7 @@ export class VoicePlayback {
   async dispose(){this.stop();this.disposed=true;}
 }`;
 const widgetURL=new URL('../../v2/widget.js',import.meta.url),stubURL='data:text/javascript;base64,'+Buffer.from(stubs).toString('base64');
-const source=(await readFile(widgetURL,'utf8')).replace(/from '\.\/(sdk|speech)\.js'/g,`from '${stubURL}'`).replace(/from '(\.\/[^']+)'/g,(_,path)=>`from '${new URL(path,widgetURL).href}'`).replaceAll('import.meta.url',JSON.stringify(widgetURL.href));
+const source=(await readFile(widgetURL,'utf8')).replace(/from '\.\/(sdk|speech)\.js(?:\?[^']*)?'/g,`from '${stubURL}'`).replace(/from '(\.\/[^']+)'/g,(_,path)=>`from '${new URL(path,widgetURL).href}'`).replaceAll('import.meta.url',JSON.stringify(widgetURL.href));
 const {createLive2DWidget}=await import('data:text/javascript;base64,'+Buffer.from(source+'\n//# sourceURL=widget-under-test.mjs').toString('base64'));
 const key='synthetic-widget-session-key',endpoint='https://provider.example/v1/chat/completions';
 const manifest={id:'fixture-a',entryUrl:'https://models.example/a.model3.json',motions:[],expressions:[]};

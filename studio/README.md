@@ -62,3 +62,14 @@ Raw PSD/PNG import displays the actual artwork. Identical or missing endpoint sh
 **网页播放** sends a validated snapshot of the current in-memory project, including unsaved edits, to the player through a random same-origin BroadcastChannel. It uses no server upload or browser storage. Keep the editor open until the player confirms receipt. A handoff failure reports an error and leaves the editor project intact; it does not select the public demo. The player also accepts saved mesh2d JSON, marks unbound/static parameters, hides unavailable blink controls and shows real parameter values from its renderer. Manual parameter input pauses the corresponding auto control. An unbound project can add basic breathing in the player and download a separate bound project. The public geometric demo is loaded only by an explicit demo button.
 
 These controls edit the repository's self-contained **studio-mesh2d v1 webpage format**. They do not edit/export standard Cubism MOC3 or CMO3. The existing Studio MOC3 playback remains supported.
+
+
+### Basic action materials
+
+New PSD imports expose breath, character-left/right eye-open, and mouth-open parameters. The checked import option creates starter keyforms only for recognized body/clothing and flat eye/mouth patch roles. Matching a layer name is a materials hint, never a visual approval. Eye and mouth starters remain approximations; rich lids/mouth-interior rigging and articulated waving are not implemented. Missing/unbound/approximate/reviewed breath states are explicit.
+
+New eyes declare `semantics: "eye-open-01"` (closed0/open1/default1). Existing projects with absent semantics keep legacy open0/close1 keyforms and playback. Adding defaults preserves existing endpoints and parameter values. Projects already at the 16-parameter limit continue to load. Manual base changes still preserve all keyforms; reapplying a selected-layer preset rebuilds its two keys and is undoable.
+
+Materials handoff: [PSD generation contract](spec/PSD-GENERATION-CONTRACT.md), [neutral manifest schema](spec/character-layers.v1.schema.json), [draft structure example](spec/character-layers.v1.example.json). Importing a sidecar requires the actual PSD SHA-256 and exact unique layer names; its declared visual approval never marks an action usable. Mouth stretch pivots use the main alpha component on new imports to avoid transparent-boundary drift.
+
+This release saves the custom mesh2d project. The separate synthetic MIT-writer experiment produced and verified one genuine moving MOC3. A generic webpage MOC3 exporter is not included in this release.

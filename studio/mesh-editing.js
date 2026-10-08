@@ -1,9 +1,9 @@
 // Geometry edits preserve the existing Studio mesh2d format and embedded textures.
-import {meshPositions,bindPreset} from '../v2/mesh-project.js';
+import {meshPositions,bindPreset} from '../v2/mesh-project.js?ui=3';
 const copy=value=>structuredClone(value);
-export function layerState(layer){return {id:layer.id,mesh:copy(layer.mesh),bindings:copy(layer.bindings),visible:layer.visible,opacity:layer.opacity};}
-export function editorState(project){return {parameters:copy(project.parameters),layers:project.layers.map(layerState)};}
-export function restoreEditorState(project,state){const byId=new Map(project.layers.map(l=>[l.id,l]));project.layers=state.layers.map(s=>{const l=byId.get(s.id);if(!l)throw new Error('图层状态不匹配');Object.assign(l,copy(s));return l;});project.parameters=copy(state.parameters);}
+export function layerState(layer){return {id:layer.id,mesh:copy(layer.mesh),bindings:copy(layer.bindings),visible:layer.visible,opacity:layer.opacity,role:layer.role,roleSource:layer.roleSource,occlusionComplete:layer.occlusionComplete,pivot:copy(layer.pivot),contentBounds:copy(layer.contentBounds)};}
+export function editorState(project){return {parameters:copy(project.parameters),layers:project.layers.map(layerState),actionReviews:copy(project.actionReviews||{})};}
+export function restoreEditorState(project,state){const byId=new Map(project.layers.map(l=>[l.id,l]));project.layers=state.layers.map(s=>{const l=byId.get(s.id);if(!l)throw new Error('图层状态不匹配');Object.assign(l,copy(s));return l;});project.parameters=copy(state.parameters);project.actionReviews=copy(state.actionReviews||{});}
 export class EditHistory{
   constructor(limit=40){this.limit=limit;this.entries=[];this.cursor=0;}
   get canUndo(){return this.cursor>0;}
@@ -16,9 +16,9 @@ export function transformGeometry(layer,source,{indices,target='base',parameter,
   const selected=new Set(indices);const move=(positions,visible)=>positions.map((v,i)=>{if(!selected.has(Math.floor(i/2)))return v;const axis=i%2,p=pivot[axis],scale=axis?sy:sx,offset=axis?dy:dx;
     const coordinate=visible?.[i]??v,n=v+(coordinate-p)*(scale-1)+offset;if(!Number.isFinite(n)||Math.abs(n)>100000)throw new Error('变换超出可编辑范围');return n;});
   const next=copy(source);
-  if(target==='base'){next.mesh.positions=move(source.mesh.positions);for(const keys of Object.values(next.bindings))for(const key of keys)key.positions=move(key.positions);}
+  if(target==='base'){next.mesh.positions=move(source.mesh.positions);if(next.contentBounds&&selected.size===source.mesh.positions.length/2){const b=next.contentBounds,tx=x=>pivot[0]+(x-pivot[0])*sx+dx,ty=y=>pivot[1]+(y-pivot[1])*sy+dy;next.contentBounds={left:Math.min(tx(b.left),tx(b.left+b.width)),top:Math.min(ty(b.top),ty(b.top+b.height)),width:Math.abs(b.width*sx),height:Math.abs(b.height*sy)};}for(const keys of Object.values(next.bindings))for(const key of keys)key.positions=move(key.positions);}
   else {if(!parameter||![0,1].includes(endpoint))throw new Error('先选择参数端点');next.bindings[parameter]??=[{value:0,positions:source.mesh.positions.slice()},{value:1,positions:source.mesh.positions.slice()}];const key=next.bindings[parameter][endpoint];key.positions=move(key.positions,reference);}
-  layer.mesh=next.mesh;layer.bindings=next.bindings;
+  layer.mesh=next.mesh;layer.bindings=next.bindings;layer.contentBounds=next.contentBounds;
 }
 export function parameterMotion(project,id){let changedCoordinates=0,maxDisplacement=0,boundLayers=0;for(const layer of project.layers){const keys=layer.bindings[id];if(!keys||!layer.visible||layer.opacity<=0)continue;let changed=false;for(let i=0;i<keys[0].positions.length;i++){const delta=Math.abs(keys[1].positions[i]-keys[0].positions[i]);if(delta>1e-7){changedCoordinates++;changed=true;maxDisplacement=Math.max(maxDisplacement,delta);}}if(changed)boundLayers++;}return {id,boundLayers,changedCoordinates,maxDisplacement};}
 export function basicBreath(project,{selected=0,strength=.04}={}){let parameter=project.parameters.find(p=>/breath/i.test(p.id));if(!parameter){if(project.parameters.length>=16)throw new Error('参数数量已达上限');parameter={id:'ParamBreath',name:'呼吸',min:0,max:1,default:0};project.parameters.push(parameter);}

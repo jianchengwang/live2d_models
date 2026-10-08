@@ -1,4 +1,4 @@
-import {MESH_FORMAT,gridMesh,bindPreset} from '../v2/mesh-project.js';
+import {MESH_FORMAT,gridMesh,bindPreset} from '../v2/mesh-project.js?ui=3';
 // Original synthetic geometry; no user image or third-party sample artwork.
 export function makeMeshDemo(){const w=480,h=640,layers=[];
   function layer(name,paint){const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');paint(ctx);layers.push({id:'demo-'+layers.length,name,width:w,height:h,texture:c.toDataURL('image/png'),visible:true,opacity:1,mesh:gridMesh(0,0,w,h),bindings:{}});}

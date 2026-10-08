@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Neutral character layer materials manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "version", "asset", "layers", "requestedActions", "review"],
+  "properties": {
+    "format": {"const": "character-layer-manifest"},
+    "version": {"const": 1},
+    "asset": {
+      "type": "object", "additionalProperties": false,
+      "required": ["psd", "sha256", "width", "height", "coordinates"],
+      "properties": {
+        "psd": {"type": "string", "minLength": 1, "maxLength": 160},
+        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$", "description": "Null is permitted while drafting only; final PSD handoff must have its actual hash."},
+        "width": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "height": {"type": "integer", "minimum": 1, "maximum": 4096},
+        "coordinates": {"const": "canvas-pixels-x-right-y-down"}
+      }
+    },
+    "layers": {
+      "type": "array", "minItems": 1, "maxItems": 64,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "psdName", "role", "restVisible", "occlusionComplete"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,79}$"},
+          "psdName": {"type": "string", "minLength": 1, "maxLength": 100},
+          "role": {"enum": ["torso.clothing", "neck", "head.face_fill", "hair.back", "hair.front", "eye.left.open_patch", "eye.right.open_patch", "eye.left.sclera", "eye.right.sclera", "eye.left.iris", "eye.right.iris", "eye.left.pupil", "eye.right.pupil", "eye.left.highlight", "eye.right.highlight", "eye.left.upper_lid", "eye.right.upper_lid", "eye.left.lower_lid", "eye.right.lower_lid", "eye.left.closed_line", "eye.right.closed_line", "mouth.closed_patch", "mouth.outer_upper", "mouth.outer_lower", "mouth.inner", "mouth.teeth", "mouth.tongue", "mouth.closed_line", "arm.left.upper", "arm.right.upper", "arm.left.forearm", "arm.right.forearm", "arm.left.hand", "arm.right.hand", "arm.left.backfill", "arm.right.backfill", "other"]},
+          "restVisible": {"type": "boolean"},
+          "occlusionComplete": {"type": "boolean"},
+          "parentId": {"type": ["string", "null"], "maxLength": 80},
+          "pivot": {"type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": {"x": {"type": "number", "minimum": 0, "maximum": 4096}, "y": {"type": "number", "minimum": 0, "maximum": 4096}}},
+          "notes": {"type": "string", "maxLength": 1000}
+        }
+      }
+    },
+    "requestedActions": {"type": "array", "uniqueItems": true, "minItems": 1, "items": {"enum": ["breath", "blink", "mouth", "wave"]}},
+    "review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["visualApproved", "notes"],
+      "properties": {"visualApproved": {"type": "boolean"}, "notes": {"type": "string", "maxLength": 2000}}
+    }
+  }
+}

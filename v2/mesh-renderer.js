@@ -1,4 +1,4 @@
-import {meshPositions} from './mesh-project.js';
+import {meshPositions} from './mesh-project.js?ui=3';
 export async function createMeshRenderer(canvas,project,{signal}={}){
   const gl=canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:true});if(!gl)throw new Error('浏览器无法创建 WebGL 网格画布');
   const shader=(type,source)=>{const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error('网格 shader 编译失败');return s;};

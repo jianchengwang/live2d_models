@@ -43,6 +43,7 @@ def build(base='/live2d_models/',release=False,source=None,site_addition=False):
         for p in (ROOT/directory).iterdir():
             if p.suffix in {'.html','.css','.js'}:dest=out/p.relative_to(ROOT);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
     shutil.copytree(ROOT/'vendor',out/'vendor')
+    shutil.copytree(ROOT/'studio/spec',out/'studio/spec')
     runtime={'available':bool(release or site_addition),'developmentOnly':False,'existingRuntimeOnly':bool(site_addition)}
     configured_runtime=json.loads((ROOT/'v2/runtime.json').read_text())
     if configured_runtime.get('modernCoreURL'):runtime['existingRuntimeOnly']=False

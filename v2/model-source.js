@@ -1,4 +1,4 @@
-import {validateMeshProject,meshModel} from './mesh-project.js';
+import {validateMeshProject,meshModel} from './mesh-project.js?ui=3';
 export function publicUrl(value,base=globalThis.location?.href||import.meta.url){
   const url=new URL(value,base);
   const parent=new URL(base),loopback=u=>['localhost','127.0.0.1','[::1]'].includes(u.hostname);

@@ -1,20 +1,21 @@
-import {createLive2DWidget} from '../v2/widget.js?ui=2';
-import {validateMeshProject,meshModel} from '../v2/mesh-project.js';
-import {makeMeshDemo} from './mesh-demo.js';
-import {parameterMotion,basicBreath} from './mesh-editing.js';
-import {receivePreview} from './mesh-handoff.js';
+import {createLive2DWidget} from '../v2/widget.js?ui=3';
+import {validateMeshProject,meshModel} from '../v2/mesh-project.js?ui=3';
+import {makeMeshDemo} from './mesh-demo.js?ui=3';
+import {parameterMotion,basicBreath} from './mesh-editing.js?ui=3';
+import {actionStatus,inferProjectRoles} from './mesh-actions.js?ui=3';
+import {receivePreview} from './mesh-handoff.js?ui=3';
 const $=id=>document.getElementById(id);let widget,url,turn=0,paused=false,project,source='',controls=new Map();
 const say=text=>$('status').textContent=text;
 function auto(){widget?.viewer.command('mesh-playback',{breath:$('auto-breath').checked&&!$('auto-breath').disabled,blink:$('auto-blink').checked&&!$('auto-blink').disabled});}
 function updateState(state){for(const [id,c]of controls){const value=Number(state.values?.[id]);if(!Number.isFinite(value))continue;if(document.activeElement!==c.range)c.range.value=value;c.output.value=(document.activeElement===c.range?Number(c.range.value):value).toFixed(2);}
   $('motion-status').textContent=state.paused?'角色已暂停。':$('auto-breath').checked?'呼吸正在循环，数值与画面同步更新。':$('auto-blink').checked?'眨眼正在自动播放。':'当前由手动参数控制。';}
-async function open(raw,{from='本地文件'}={}){const token=++turn,checked=validateMeshProject(raw),nextURL=URL.createObjectURL(new Blob([JSON.stringify(checked)],{type:'application/json'}));widget?.dispose();if(url)URL.revokeObjectURL(url);url=nextURL;project=checked;source=from;
+async function open(raw,{from='本地文件'}={}){const token=++turn,checked=inferProjectRoles(validateMeshProject(raw)),nextURL=URL.createObjectURL(new Blob([JSON.stringify(checked)],{type:'application/json'}));widget?.dispose();if(url)URL.revokeObjectURL(url);url=nextURL;project=checked;source=from;
   const next=await createLive2DWidget({container:$('preview'),manifest:meshModel(project,url,{localImport:true}),title:project.name,appearance:{width:330,height:500,side:'right',bottom:24,gutter:20},chat:{mode:'unconfigured'},voice:{enabled:false}});if(token!==turn){next.dispose();return;}widget=next;
   next.viewer.addEventListener('mesh-state',e=>{if(token===turn)updateState(e.detail);});await next.ready;if(token!==turn)return;if(!next.viewer.ready)throw new Error(next.viewer.lastError||'网格项目加载失败');
   paused=false;$('pause').textContent='暂停角色';$('project-name').textContent=project.name+' · '+from;$('parameters').replaceChildren();controls=new Map();
   const motion=project.parameters.map(p=>parameterMotion(project,p.id)),breath=motion.filter(m=>/breath/i.test(m.id)),blink=motion.filter(m=>/eye.*open/i.test(m.id));
   for(const [label,checkbox,stats]of [['breath-control','auto-breath',breath],['blink-control','auto-blink',blink]]){$(label).hidden=!stats.length;$(checkbox).disabled=!stats.some(m=>m.changedCoordinates);$(checkbox).checked=!$(checkbox).disabled;}
-  for(const p of project.parameters){const stat=motion.find(m=>m.id===p.id),label=document.createElement('label'),range=document.createElement('input'),output=document.createElement('output'),note=document.createElement('small');label.textContent=p.name+' · '+p.id;range.type='range';range.min=0;range.max=1;range.step=.01;range.value=p.default;range.dataset.parameter=p.id;range.setAttribute('aria-label',p.name);range.disabled=!stat.changedCoordinates;output.value=p.default.toFixed(2);note.textContent=stat.changedCoordinates?'已绑定 '+stat.boundLayers+' 个可见图层':'未绑定不同端点，当前只静态显示';
+  for(const p of project.parameters){const stat=motion.find(m=>m.id===p.id),label=document.createElement('label'),range=document.createElement('input'),output=document.createElement('output'),note=document.createElement('small');label.textContent=p.name+' · '+p.id;range.type='range';range.min=0;range.max=1;range.step=.01;range.value=p.default;range.dataset.parameter=p.id;range.setAttribute('aria-label',p.name);range.disabled=!stat.changedCoordinates;output.value=p.default.toFixed(2);const action=/breath/i.test(p.id)?'breath':/eye.*open/i.test(p.id)?'blink':/mouth.*open/i.test(p.id)?'mouth':null;note.textContent=stat.changedCoordinates?'已绑定 '+stat.boundLayers+' 个可见图层'+(action?' · '+actionStatus(project,action).label:''):'未绑定不同端点，当前只静态显示';if(/wave/i.test(p.id))note.textContent+=' · 关节招手尚未实现';if(/eye.*open/i.test(p.id))note.textContent+=p.semantics==='eye-open-01'?' · 0 闭 / 1 开':' · 旧项目 0 开 / 1 闭';
     range.oninput=()=>{output.value=Number(range.value).toFixed(2);if(/breath/i.test(p.id))$('auto-breath').checked=false;if(/eye.*open/i.test(p.id))$('auto-blink').checked=false;auto();widget.viewer.setMeshParameter(p.id,Number(range.value));};label.append(output,range,note);$('parameters').append(label);controls.set(p.id,{range,output});}
   const moving=motion.some(m=>m.changedCoordinates);$('motion-guide').hidden=moving;$('static-note').textContent='当前项目的两个参数端点尚无有效差异，角色只会静态显示。可添加基础呼吸，再保存带绑定的项目。';auto();if(next.viewer.meshState)updateState(next.viewer.meshState);
   say(moving?'已加载你的项目。自动参数值会实时变化；效果很小时请检查幅度、所选图层和遮挡。':'已加载你的真实角色，未替换为演示。当前没有有效形变绑定；可点击“添加基础呼吸”。');}
