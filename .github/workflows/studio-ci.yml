@@ -2,9 +2,9 @@ name: Static Studio checks
 on:
   push:
     branches: [main]
-    paths: ['index.html', 'studio/**', 'v2/**', 'catalog/**', 'tools/build.py', 'release-approval.json', '.github/workflows/studio-ci.yml']
+    paths: ['index.html', 'studio/**', 'v2/**', 'catalog/**', 'skills/**', 'tools/*.py', 'release-approval.json', '.github/workflows/studio-ci.yml']
   pull_request:
-    paths: ['index.html', 'studio/**', 'v2/**', 'catalog/**', 'tools/build.py', '.github/workflows/studio-ci.yml']
+    paths: ['index.html', 'studio/**', 'v2/**', 'catalog/**', 'skills/**', 'tools/*.py', '.github/workflows/studio-ci.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,6 +19,8 @@ jobs:
       - name: Test static workbench without keys or provider calls
         run: |
           node --test studio/tests/*.test.mjs
+          node --test skills/live2d-local/tests/*.test.mjs
+          python3 -B tools/package_local_skill.py
           python3 -B -m unittest discover -s studio/tests -p 'test_*.py' -v
       - name: Verify frozen site and build Studio with recorded homepage entry
         run: python3 -B tools/build.py --base /live2d_models/ --site-addition --source .

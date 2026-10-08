@@ -44,6 +44,13 @@ def build(base='/live2d_models/',release=False,source=None,site_addition=False):
             if p.suffix in {'.html','.css','.js'}:dest=out/p.relative_to(ROOT);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
     shutil.copytree(ROOT/'vendor',out/'vendor')
     shutil.copytree(ROOT/'studio/spec',out/'studio/spec')
+    skill=ROOT/'skills/live2d-local-skill-0.1.0.zip'
+    if skill.is_file():
+        checksum=skill.with_suffix('.zip.sha256')
+        if not checksum.is_file() or checksum.read_text().split()[0]!=hashlib.sha256(skill.read_bytes()).hexdigest():raise ValueError('本地技能下载包校验不符')
+        (out/'skills').mkdir()
+        shutil.copyfile(skill,out/'skills'/skill.name)
+        shutil.copyfile(checksum,out/'skills'/checksum.name)
     runtime={'available':bool(release or site_addition),'developmentOnly':False,'existingRuntimeOnly':bool(site_addition)}
     configured_runtime=json.loads((ROOT/'v2/runtime.json').read_text())
     if configured_runtime.get('modernCoreURL'):runtime['existingRuntimeOnly']=False

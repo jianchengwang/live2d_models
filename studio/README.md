@@ -73,3 +73,5 @@ New eyes declare `semantics: "eye-open-01"` (closed0/open1/default1). Existing p
 Materials handoff: [PSD generation contract](spec/PSD-GENERATION-CONTRACT.md), [neutral manifest schema](spec/character-layers.v1.schema.json), [draft structure example](spec/character-layers.v1.example.json). Importing a sidecar requires the actual PSD SHA-256 and exact unique layer names; its declared visual approval never marks an action usable. Mouth stretch pivots use the main alpha component on new imports to avoid transparent-boundary drift.
 
 This release saves the custom mesh2d project. The separate synthetic MIT-writer experiment produced and verified one genuine moving MOC3. A generic webpage MOC3 exporter is not included in this release.
+
+The local agent skill download is available from `local-skill.html`. It separates editable mesh2d source from runtime candidates, uses pinned MIT writer code and Node built-ins, includes original synthetic material only, and does not bundle Core or repository character models. Its CLI Core report deliberately leaves browser pixel/motion acceptance pending. Existing MOC3 is a runtime reference, not a recoverable editable source.

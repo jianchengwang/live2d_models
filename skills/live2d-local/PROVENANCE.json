@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "0.1.0",
+  "upstream": {
+    "url": "https://github.com/MangoLion/stretchystudio",
+    "commit": "24a83a27ba43e43e9d2e3de5e33994594e6199c2",
+    "license": "MIT",
+    "sourceSHA256": "f572264526f9de3f16632d3c99afb2ce015856f489d49ade815cddfa5abc82ae",
+    "provenanceNote": "Upstream uses reverse-engineered MOC3 layout references (py-moc3 / moc3ingbird); this is not a clean-room implementation."
+  },
+  "writerSHA256": "48991c49743f655a8f486716d2288391203df0ee15c30681f882a817fca6b715",
+  "coreIncluded": false,
+  "core": {
+    "url": "https://cubism.live2d.com/sdk-web/core/06/live2dcubismcore.min.js",
+    "sha256": "8741f739779b5d5210872bd3d7d99f0f1e56e6c87409e7d26d6bb4b80aa1ef47"
+  },
+  "dependencies": {
+    "npm": [],
+    "python": [],
+    "node": ">=22.12.0"
+  }
+}

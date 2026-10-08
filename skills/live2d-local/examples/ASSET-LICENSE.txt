@@ -1,0 +1,1 @@
+Original synthetic geometric pixels and sample projects: MIT, under the package LICENSE. No third-party character artwork.
